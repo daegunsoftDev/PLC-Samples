@@ -14,7 +14,7 @@ VAR
 	fPosition		:	LREAL;
 	fVelocity		:	LREAL;
 	bBusy			:	BOOL;
-	bDone			:	bool;
+	bDone			:	BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -33,8 +33,8 @@ fbMoveAbsolute(
 	Execute := bExecute,
 	Position := fPosition,
 	Velocity := fVelocity,
-	Busy => bBusy,
-	Done => bDone 
+	Busy => bBusy,	// 요청받은 동작을 처리중일 때 TRUE.
+	Done => bDone 	// 요청받은 동작이 완료되면 TRUE.
 );]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
