@@ -3,6 +3,7 @@
 - [NC Task 및 Axis 추가](#NC-Task-및-Axis-추가)
 - [PLC 인스턴스에 AXIS_REF 변수 추가](#PLC-인스턴스에-AXIS_REF-변수-추가)
 - [NC Axis를 PLC 인스턴스 변수에 Link](#NC-Axis를-PLC-인스턴스-변수에-Link)
+- [코드 작성 및 실행](#코드-작성-및-실행)
 ## 라이브러리 추가하기
 솔루션 생성 및 PLC 프로젝트를 추가한 후, Motion 관련 기능을 사용하기 위해 Tc2_MC2 라이브러리를 추가해야 합니다.   
 
@@ -46,9 +47,15 @@ VAR
 	fbPower			:	MC_Power;
 	bEnable			:	BOOL;
 	
-	fbMoveAbsolute	:	MC_MoveAbsolute;
+	fbMoveAbsolute		:	MC_MoveAbsolute;
 	bExecute		:	BOOL;
 	fPosition		:	LREAL;
 	fVelocity		:	LREAL;
 END_VAR
 ```
+
+MC_Power FB는 컨트롤러의 Axis 제어 가능 여부를 설정합니다.   
+MC_MoveAbsolute FB는 Axis를 지정한 위치까지 지정한 속도로 움직이게 합니다.   
+더 자세한 설명은 아래 링크를 참조하세요.   
+https://infosys.beckhoff.com/english.php?content=../content/1033/tcplclib_tc2_mc2/70049419.html&id=3860055855707485697   
+https://infosys.beckhoff.com/english.php?content=../content/1033/tcplclib_tc2_mc2/70094731.html&id=7626760230426344577
