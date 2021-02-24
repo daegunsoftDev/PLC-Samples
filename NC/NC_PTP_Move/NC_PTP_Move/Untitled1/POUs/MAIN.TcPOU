@@ -3,14 +3,54 @@
   <POU Name="MAIN" Id="{f064d8f9-778d-4913-a948-2610455ff419}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
-	Axis		:	AXIS_REF;
+	Axis			:	AXIS_REF;
+
+	fbPower			:	MC_Power;
+	bEnable			:	BOOL;
+	bIsAxisReady	:	BOOL;
+	
+	fbMoveAbsolute	:	MC_MoveAbsolute;
+	bExecute		:	BOOL;
+	fPosition		:	LREAL;
+	fVelocity		:	LREAL;
+	bBusy			:	BOOL;
+	bDone			:	bool;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
+      <ST><![CDATA[Axis(); // Axis 정보 갱신
+
+fbPower(
+	Axis := Axis,
+	Enable := bEnable,
+	Enable_Positive := bEnable,
+	Enable_Negative := bEnable,
+	Status => bIsAxisReady // Axis가 동작할 준비가 왼료되면 TRUE
+);
+
+fbMoveAbsolute(
+	Axis := Axis,
+	Execute := bExecute,
+	Position := fPosition,
+	Velocity := fVelocity,
+	Busy => bBusy,
+	Done => bDone 
+);]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
       <LineId Id="2" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="37" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="47" Count="1" />
+      <LineId Id="54" Count="1" />
+      <LineId Id="44" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>
