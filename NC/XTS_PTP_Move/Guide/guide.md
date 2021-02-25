@@ -1,4 +1,5 @@
 ## 목차
+- [XTS 설치](#XTS-설치)
 - [라이브러리 추가하기](#라이브러리-추가하기)
 - [XTS_Task 추가 및 코어 설정](#XTS_Task-추가-및-코어-설정)
 - [XTS Module 추가](#XTS-Module-추가)
@@ -7,15 +8,19 @@
 - [NC Axis를 PLC 인스턴스 변수에 Link](#NC-Axis를-PLC-인스턴스-변수에-Link)
 - [코드 작성 및 실행](#코드-작성-및-실행)
 
+## XTS 설치
+https://www.beckhoff.com/ko-kr/support/download-finder/software-and-tools/   
+위 링크에서 TF5400, TF5850 두개 항목을 검색하여 다운로드 받은 후 Target System에 설치합니다.
+
 ## 라이브러리 추가하기
-References에 Tc2_MC2, Tc3_McCoordinatedMotion, Tc3_McCollisionAvoidance 라이브러리를 추가합니다.
+PLC 프로젝트의 References에 Tc2_MC2, Tc3_McCoordinatedMotion, Tc3_McCollisionAvoidance 라이브러리를 추가합니다.
 
 ## XTS_Task 추가 및 코어 설정
 XTS를 제어하려면 하나의 Isolated Core를 독점적으로 사용하는 Task가 필요합니다.   
 Solution Explorer의 SYSTEM - Tasks에서 'XTS_Task' Task를 추가합니다.   
 <img src="1 XTS_Task 추가.gif" width="50%">
 
-이제 Core 설정을 수정해야 합니다.   
+이제 Core 설정을 수정합니다.   
 SYSTEM - Real-Time을 선택합니다.   
 Settings 탭의 'Read from Target' 버튼을 클릭하면 현재 선택된 Target System의 코어 구성을 확인할 수 있습니다.
 
@@ -46,7 +51,6 @@ XTS - AT2001-0250 Motor module with feed 250mm, 48V를 선택하여 추가합니
 이 모듈은 전원선이 연결되며 일반적으로 무버들의 원점으로 사용됩니다.   
 방금 추가한 AT2001-0250을 선택하고 AT2001-5250 Sensor line with feed를 같은 방법으로 추가합니다.
 
-
 이번 예제에서는 총 길이 3000mm의 트랙을 구성할 것입니다.   
 전체 트랙은 직선 모듈 8개와 90° clothoid 모듈 4개로 구성됩니다.   
 <img src="6 XTS 트랙 구성도.png" width="40%">
@@ -61,3 +65,18 @@ XTS - AT2001-0250 Motor module with feed 250mm, 48V를 선택하여 추가합니
 마지막으로 두 EtherCAT Master는 실제로 존재하는 장치가 아니므로 Context Menu에서 Disable을 클릭하여 비활성화 합니다.
 
 ## XTS IO Driver 추가
+SYSTEM - TcCOM Objects에 XtsIoDriver를 추가합니다.   
+<img src="7 XtsIoDriver 추가.png" width="40%">   
+
+XtsIoDriver를 선택하고 Manager - Launch Configurator 버튼을 클릭합니다.   
+XTS 구성을 진행하는 창이 표시됩니다. Task는 XTS_Task를 선택합니다.   
+Device 선택 단계에서 각 Device를 순서에 따라 선택합니다.   
+트랙이 올바르게 구성되었는지 확인하고 다음으로 넘어갑니다.   
+이 예제에서 무버는 2개를 사용할 것입니다.   
+다음 버튼을 두번 눌러 설정을 완료합니다.   
+<img src="8 XtsIoDriver Manager 초기 설정.gif" width="40%">   
+
+가상의 XTS 장치를 사용할 것이므로 가상의 무버들의 초기 위치를 설정해줘야 합니다.   
+Launch Configurator 버튼을 다시 클릭하고 아래 이미지를 참조하여 설정을 완료합니다.   
+<img src="9 XtsIoDriver Manager 시뮬레이션 설정.gif" width="40%">  
+
