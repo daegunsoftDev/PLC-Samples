@@ -1,5 +1,6 @@
 ## 목차
 - [라이브러리 추가하기](#라이브러리-추가하기)
+- [XTS_Task 추가 및 코어 설정](#XTS_Task-추가-및-코어-설정)
 - [XTS Module 추가](#XTS-Module-추가)
 - [XTS IO Driver 추가](#XTS-IO-Driver-추가)
 - [PLC 인스턴스에 AXIS_REF 변수 추가](#PLC-인스턴스에-AXIS_REF-변수-추가)
@@ -9,21 +10,45 @@
 ## 라이브러리 추가하기
 References에 Tc2_MC2, Tc3_McCoordinatedMotion, Tc3_McCollisionAvoidance 라이브러리를 추가합니다.
 
+## XTS_Task 추가 및 코어 설정
+XTS를 제어하려면 하나의 Isolated Core를 독점적으로 사용하는 Task가 필요합니다.   
+Solution Explorer의 SYSTEM - Tasks에서 'XTS_Task' Task를 추가합니다.   
+<img src="1 XTS_Task 추가.gif" width="40%">
+
+이제 Core 설정을 수정해야 합니다.   
+SYSTEM - Real-Time을 선택합니다.   
+Settings 탭의 'Read from Target' 버튼을 클릭하면 현재 선택된 Target System의 코어 구성을 확인할 수 있습니다.
+
+* Target System이 일반 PC인 경우:   
+    XTS_Task는 Shared Core에 할당할 수 없고 Isolated Core에 할당되어야 합니다.
+    Isolated Core가 없으면 'Set on target' 버튼을 눌러 두 종류의 코어의 개수를 조절합니다.
+    이번 예제에서는 2개의 Isolated Core를 사용합니다.
+    Isolated로 설정된 Core는 윈도우에서 사용할 수 없게 되므로 필요한 만큼만 설정합니다.
+    설정을 적용하기 위해 재부팅 하고 'Read from Target' 버튼을 다시 누릅니다.
+    목록 하단의 2개 core가 Isolated로 변경된 것을 확인하고 RT_Core 체크박스에 체크합니다.
+	목록 상단의 0번 Core는 체크 해제합니다.
+
+XTS_Task는 다른 Task들과 다른 Core에 할당하고, 해당 코어의 Base Time을 250us로 수정합니다.   
+전체 과정은 아래와 같습니다.   
+<img src="2 Core 설정 수정.gif" width="40%">
+
+마지막으로 다시 SYSTEM - Tasks로 이동해서 XTS_Task의 Cycle ticks를 1로 수정합니다.
+
 ## XTS Module 추가
 가상의 XTS 모듈들을 추가하여 가상의 XTS 시스템을 구성합니다.   
 I/O - Devices의 Context Menu에서 Add New Item...을 선택하고 대화상자에서 EtherCAT - EtherCAT Master를 선택합니다.   
-<img src="https://user-images.githubusercontent.com/79190459/108970158-3b45d800-76c5-11eb-81db-c5fab7beb74e.png" width="40%">   
-<img src="https://user-images.githubusercontent.com/79190459/108970178-3bde6e80-76c5-11eb-956b-0d7d3c062453.png" width="40%">
+<img src="3 Device 추가.png" width="40%">   
+<img src="4 EtherCAT Master 추가.png" width="40%">
 
 새로 추가된 EtherCAT Master에 새 모듈을 추가합니다.   
 XTS - AT2001-0250 Motor module with feed 250mm, 48V를 선택하여 추가합니다.   
 이 모듈은 전원선이 연결되며 일반적으로 무버들의 원점으로 사용됩니다.   
-<img src="https://user-images.githubusercontent.com/79190459/108973227-75b07480-76c7-11eb-93f5-312ceb4d6682.png" width="40%">
+<img src="5 XTS 전원 모듈 추가.png" width="40%">
 
 AT2001-0250을 선택하고 AT2001-5250 Sensor line with feed를 추가합니다.   
 
 이번 예제에서는 총 길이 3000mm의 트랙을 구성할 것입니다. 전체 트랙은 직선 모듈 8개와 90° clothoid 모듈 4개로 구성됩니다.   
-<img src="https://user-images.githubusercontent.com/79190459/108975196-95489c80-76c9-11eb-92df-fa69175996fe.png" width="40%">
+<img src="6 XTS 트랙 구성도.png" width="40%">
 
 직선 모듈 3개를 더 추가해야 합니다. EtherCAT Master에 AT2000-0250 모듈 3개를 추가합니다. 각 모듈에는 AT2000-5250 Sensor Line 모듈을 추가합니다.   
 곡선 모듈은 AT2050-0500 Motor module, 90° clothoid, EtherCAT In, 48V를 먼저 추가합니다. 그 다음 AT2050-0501 모듈을 추가합니다.   
