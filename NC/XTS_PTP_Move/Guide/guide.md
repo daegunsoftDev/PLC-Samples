@@ -9,7 +9,7 @@
   - [MOTION Parameter 설정](#MOTION-Parameter-설정)
   - [코드 작성 및 PLC 인스턴스 변수 Link](#코드-작성-및-PLC-인스턴스-변수-Link)
 - [테스트](#테스트)
-  - 
+  - [TcXtsViewer 실행](#TcXtsViewer-실행)
 
 ## 개요
 가상의 XTS 시스템을 구성하고 간단한 PTP 제어가 가능한 프로그램을 작성합니다.
@@ -99,3 +99,16 @@ Parameter 탭의 Modulo Factor가 Rail Length와 동일하도록 수정합니다
 ### 코드 작성 및 PLC 인스턴스 변수 Link
 코드 본문이 너무 길어서 여기에 적지 않습니다.   
 코드 작성 후 PLC 인스턴스 변수들을 각각의 Axis와 CA Group에 Link 합니다.   
+
+## 테스트
+
+### TcXtsViewer 실행
+기본 설치 경로는 C:\TwinCAT\Functions\TF5850-TC3-XTS-Technology\TcXtsViewer\TcXtsViewer.exe 입니다.   
+<img src="10 TcXtsViewer 실행.gif" width="40%">   
+
+### PLC 실행 방법
+1. bEnable을 TRUE로 설정하여 Axis들을 동작 가능한 상태로 만듭니다.
+2. bAddToGroup을 TRUE로 설정하여 Axis들을 CA Group에 추가합니다.
+3. bGroupEnable을 TRUE로 설정하여 CA Group을 동작 가능한 상태로 만듭니다.
+4. fPosition2, fVelocity2, fGap2를 각각 200, 20, 100으로 설정합니다.
+5. bMoveExecute2를 TRUE로 설정하면 Mover 2가 지정된 동작대로 이동합니다.
