@@ -6,4 +6,4 @@
 - Axis를 추가하고 PLC 코드에 Link 하는 방법을 설명합니다.
 - MC_Power, MC_MoveAbsolute FB의 기본적인 사용법을 설명합니다.
 
-참조 : [가이드](guide.md)
+참조 : [가이드](./Guide/guide.md)
