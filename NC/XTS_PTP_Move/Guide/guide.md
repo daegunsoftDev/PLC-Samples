@@ -1,21 +1,29 @@
 ## 목차
-- [XTS 설치](#XTS-설치)
-- [라이브러리 추가하기](#라이브러리-추가하기)
-- [XTS_Task 추가 및 코어 설정](#XTS_Task-추가-및-코어-설정)
-- [XTS Module 추가](#XTS-Module-추가)
-- [XTS IO Driver 추가](#XTS-IO-Driver-추가)
-- [PLC 인스턴스에 AXIS_REF 변수 추가](#PLC-인스턴스에-AXIS_REF-변수-추가)
-- [NC Axis를 PLC 인스턴스 변수에 Link](#NC-Axis를-PLC-인스턴스-변수에-Link)
-- [코드 작성 및 실행](#코드-작성-및-실행)
+- [개요](#개요)
+- [프로젝트 구현](#프로젝트-구현)
+  - [XTS 설치](#XTS-설치)
+  - [라이브러리 추가하기](#라이브러리-추가하기)
+  - [XTS_Task 추가 및 코어 설정](#XTS_Task-추가-및-코어-설정)
+  - [XTS Module 추가](#XTS-Module-추가)
+  - [XTS IO Driver 추가](#XTS-IO-Driver-추가)
+  - [MOTION Parameter 설정](#MOTION-Parameter-설정)
+  - [코드 작성 및 PLC 인스턴스 변수 Link](#코드-작성-및-PLC-인스턴스-변수-Link)
+- [테스트](#테스트)
+  - 
 
-## XTS 설치
+## 개요
+가상의 XTS 시스템을 구성하고 간단한 PTP 제어가 가능한 프로그램을 작성합니다.
+
+## 프로젝트 구현
+
+### XTS 설치
 https://www.beckhoff.com/ko-kr/support/download-finder/software-and-tools/   
 위 링크에서 TF5400, TF5850 두개 항목을 검색하여 다운로드 받은 후 Target System에 설치합니다.
 
-## 라이브러리 추가하기
+### 라이브러리 추가하기
 PLC 프로젝트의 References에 Tc2_MC2, Tc3_McCoordinatedMotion, Tc3_McCollisionAvoidance 라이브러리를 추가합니다.
 
-## XTS_Task 추가 및 코어 설정
+### XTS_Task 추가 및 코어 설정
 XTS를 제어하려면 하나의 Isolated Core를 독점적으로 사용하는 Task가 필요합니다.   
 Solution Explorer의 SYSTEM - Tasks에서 'XTS_Task' Task를 추가합니다.   
 <img src="1 XTS_Task 추가.gif" width="50%">
@@ -39,7 +47,7 @@ XTS_Task는 다른 Task들과 다른 Core에 할당하고, 해당 코어의 Base
 
 마지막으로 다시 SYSTEM - Tasks로 이동해서 XTS_Task의 Cycle ticks를 1로 수정합니다.
 
-## XTS Module 추가
+### XTS Module 추가
 가상의 XTS 모듈들을 추가하여 가상의 XTS 시스템을 구성합니다.   
 I/O - Devices의 Context Menu에서 Add New Item...을 선택하고 대화상자에서 EtherCAT - EtherCAT Master를 선택합니다.   
 <img src="3 Device 추가.png" width="40%">   
@@ -64,7 +72,7 @@ XTS - AT2001-0250 Motor module with feed 250mm, 48V를 선택하여 추가합니
 트랙의 절반을 완성했습니다. I/O - Devices에 EtherCAT Master를 하나 더 추가하고 같은 과정을 반복합니다.   
 마지막으로 두 EtherCAT Master는 실제로 존재하는 장치가 아니므로 Context Menu에서 Disable을 클릭하여 비활성화 합니다.
 
-## XTS IO Driver 추가
+### XTS IO Driver 추가
 SYSTEM - TcCOM Objects에 XtsIoDriver를 추가합니다.   
 <img src="7 XtsIoDriver 추가.png" width="40%">   
 
@@ -78,5 +86,16 @@ Device 선택 단계에서 각 Device를 순서에 따라 선택합니다.
 
 가상의 XTS 장치를 사용할 것이므로 가상의 무버들의 초기 위치를 설정해줘야 합니다.   
 Launch Configurator 버튼을 다시 클릭하고 아래 이미지를 참조하여 설정을 완료합니다.   
-<img src="9 XtsIoDriver Manager 시뮬레이션 설정.gif" width="40%">  
+<img src="9 XtsIoDriver Manager 시뮬레이션 설정.gif" width="40%">   
 
+### MOTION Parameter 설정
+MOTION - NC-Task - Objects - Object1 (CA Group) 을 선택합니다.   
+Parameter (Init) 탭의 Rail Length가 XTS 시스템의 트랙 길이와 동일한지 확인합니다.   
+이 예제에서 구성한 XTS 시스템의 트랙 길이는 3000mm입니다.   
+
+그 다음으로 Axes - Axis 1 - Enc 를 선택합니다.   
+Parameter 탭의 Modulo Factor가 Rail Length와 동일하도록 수정합니다.   
+
+### 코드 작성 및 PLC 인스턴스 변수 Link
+코드 본문이 너무 길어서 여기에 적지 않습니다.   
+코드 작성 후 PLC 인스턴스 변수들을 각각의 Axis와 CA Group에 Link 합니다.   
