@@ -53,8 +53,7 @@ I/O - Devices의 Context Menu에서 Add New Item...을 선택하고 대화상자
 <img src="3 Device 추가.png" width="40%">   
 <img src="4 EtherCAT Master 추가.png" width="40%">
 
-새로 추가된 EtherCAT Master에 새 모듈을 추가합니다.   
-XTS - AT2001-0250 Motor module with feed 250mm, 48V를 선택하여 추가합니다.   
+새로 추가된 EtherCAT Master에 XTS - AT2001-0250 Motor module with feed 250mm, 48V를 추가합니다.   
 <img src="5 XTS 전원 모듈 추가.png" width="40%">   
 이 모듈은 전원선이 연결되며 일반적으로 무버들의 원점으로 사용됩니다.   
 방금 추가한 AT2001-0250을 선택하고 AT2001-5250 Sensor line with feed를 같은 방법으로 추가합니다.
@@ -80,8 +79,8 @@ XtsIoDriver를 선택하고 Manager - Launch Configurator 버튼을 클릭합니
 XTS 구성을 진행하는 창이 표시됩니다. Task는 XTS_Task를 선택합니다.   
 Device 선택 단계에서 각 Device를 순서에 따라 선택합니다.   
 트랙이 올바르게 구성되었는지 확인하고 다음으로 넘어갑니다.   
-이 예제에서 무버는 2개를 사용할 것입니다.   
-다음 버튼을 두번 눌러 설정을 완료합니다.   
+이 예제에서는 2개의 무버를 사용합니다.   
+무버 추가 후 다음 버튼을 두번 눌러 설정을 완료합니다.   
 <img src="8 XtsIoDriver Manager 초기 설정.gif" width="40%">   
 
 가상의 XTS 장치를 사용할 것이므로 가상의 무버들의 초기 위치를 설정해줘야 합니다.   
