@@ -1,5 +1,6 @@
 ## 목차
 - [개요](#개요)
+- [개발환경](#개발환경)
 - [프로젝트 구현](#프로젝트-구현)
   - [XTS 설치](#XTS-설치)
   - [라이브러리 추가하기](#라이브러리-추가하기)
@@ -15,11 +16,16 @@
 ## 개요
 가상의 XTS 시스템을 구성하고 간단한 PTP 제어가 가능한 프로그램을 작성합니다.
 
+## 개발환경
+TwinCAT 3 (v3.1.4024.11)   
+TF5850 (3.20.705.0)   
+TC3 Advanced Motion Pack (3.1.10.14)
+
 ## 프로젝트 구현
 
 ### XTS 설치
-[TF5850(3.20.705.0)](https://drive.google.com/file/d/13jeuTTDplzaEVIwHbdIx4sN3SKehuBl2/view?usp=sharing)   
-[TC3 Advanced Motion Pack(3.1.10.14)](https://drive.google.com/file/d/1KkWCg5_1TUxK2w9vqB9zu4BEDfKI_Cwq/view?usp=sharing)   
+[TF5850 (3.20.705.0)](https://drive.google.com/file/d/13jeuTTDplzaEVIwHbdIx4sN3SKehuBl2/view?usp=sharing)   
+[TC3 Advanced Motion Pack (3.1.10.14)](https://drive.google.com/file/d/1KkWCg5_1TUxK2w9vqB9zu4BEDfKI_Cwq/view?usp=sharing)   
 위의 두 개 항목들을 다운로드 받은 후 Target System에 설치합니다.
 
 ### 라이브러리 추가하기
