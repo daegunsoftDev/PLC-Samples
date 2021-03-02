@@ -18,8 +18,9 @@
 ## 프로젝트 구현
 
 ### XTS 설치
-https://www.beckhoff.com/ko-kr/support/download-finder/software-and-tools/   
-위 링크에서 TF5400, TF5850 두개 항목을 검색하여 다운로드 받은 후 Target System에 설치합니다.
+[TF5850(3.20.705.0)](https://drive.google.com/file/d/13jeuTTDplzaEVIwHbdIx4sN3SKehuBl2/view?usp=sharing)   
+[TC3 Advanced Motion Pack 3.1.10.14](https://drive.google.com/file/d/1KkWCg5_1TUxK2w9vqB9zu4BEDfKI_Cwq/view?usp=sharing)   
+위 링크에서 TF5400, TF5850 두개 항목을 다운로드 받은 후 Target System 에 설치합니다.
 
 ### 라이브러리 추가하기
 PLC 프로젝트의 References에 Tc2_MC2, Tc3_McCoordinatedMotion, Tc3_McCollisionAvoidance 라이브러리를 추가합니다.
