@@ -63,22 +63,22 @@
   </ItemGroup>
   <ItemGroup>
     <PlaceholderResolution Include="Tc2_MC2">
-      <Resolution>Tc2_MC2, 3.3.18.0 (Beckhoff Automation GmbH)</Resolution>
+      <Resolution>Tc2_MC2, 3.3.41.0 (Beckhoff Automation GmbH)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="Tc2_Standard">
-      <Resolution>Tc2_Standard, 3.3.2.0 (Beckhoff Automation GmbH)</Resolution>
+      <Resolution>Tc2_Standard, 3.3.3.0 (Beckhoff Automation GmbH)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="Tc2_System">
-      <Resolution>Tc2_System, 3.4.17.0 (Beckhoff Automation GmbH)</Resolution>
+      <Resolution>Tc2_System, 3.4.24.0 (Beckhoff Automation GmbH)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="Tc3_McCollisionAvoidance">
-      <Resolution>Tc3_McCollisionAvoidance, 3.1.6.0 (Beckhoff Automation GmbH)</Resolution>
+      <Resolution>Tc3_McCollisionAvoidance, 3.1.10.1 (Beckhoff Automation GmbH)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="Tc3_McCoordinatedMotion">
-      <Resolution>Tc3_McCoordinatedMotion, 3.1.6.2 (Beckhoff Automation GmbH)</Resolution>
+      <Resolution>Tc3_McCoordinatedMotion, 3.1.10.0 (Beckhoff Automation GmbH)</Resolution>
     </PlaceholderResolution>
     <PlaceholderResolution Include="Tc3_Module">
-      <Resolution>Tc3_Module, 3.3.16.0 (Beckhoff Automation GmbH)</Resolution>
+      <Resolution>Tc3_Module, 3.3.21.0 (Beckhoff Automation GmbH)</Resolution>
     </PlaceholderResolution>
   </ItemGroup>
   <ProjectExtensions>
