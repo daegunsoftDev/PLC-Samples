@@ -10,5 +10,3 @@
   1개의 Axis를 생성하고 제어하는 예제.
   - [XTS_PTP_Move](NC/XTS_PTP_Move/)   
   XTS 시스템을 구성하고 2개의 Mover를 제어하는 예제.
-
-참조 : [가이드](./Guide/guide.md)
