@@ -8,12 +8,12 @@
 <img src="Guide/2. Network Adapter 설정.gif" width="75%">   
 3. 추가된 장치에 Network Variable Publisher 추가.   
 <img src="Guide/3. Network Variable Publisher 추가.gif" width="75%">   
-4. 필요한 경우 추가된 Box 선택 후 Publish 탭 - Sending Options 수정.
+4. 필요한 경우 추가된 Box 선택 후 Publish 탭 - Sending Options 수정.   
 
-- Broadcast는 불특정 다수에게 송신   
-- Multicast는 같은 그룹에게 송신   
-- Unicast는 특정 장치에게 송신
-5. Box에 송신할 변수를 추가.   
+  - Broadcast는 불특정 다수에게 송신
+  - Multicast는 같은 그룹에게 송신
+  - Unicast는 특정 장치에게 송신
+5. Box에 송신할 변수를 추가.
 <img src="Guide/4. Box에 변수 추가.gif" width="75%">
 6. 추가된 항목의 Output - VarData를 PLC 변수와 Link.
 
