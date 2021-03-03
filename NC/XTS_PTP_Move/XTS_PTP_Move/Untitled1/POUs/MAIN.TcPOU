@@ -40,8 +40,6 @@ VAR
 	fbHalt2			:	MC_HaltCA;
 	bHalt2			:	BOOL;
 	
-	fbGearIn		:	MC_GearInPosCA;
-	
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -105,11 +103,6 @@ fbHalt1(
 fbHalt2(
 	Axis := Axis2,
 	Execute := bHalt2
-);
-
-fbGearIn(
-	Master := Axis2,
-	Slave := Axis1,
 );]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
@@ -141,10 +134,7 @@ fbGearIn(
       <LineId Id="118" Count="2" />
       <LineId Id="117" Count="0" />
       <LineId Id="122" Count="2" />
-      <LineId Id="121" Count="0" />
-      <LineId Id="168" Count="0" />
-      <LineId Id="167" Count="0" />
-      <LineId Id="169" Count="2" />
+      <LineId Id="171" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>
