@@ -86,14 +86,17 @@ SYSTEM - TcCOM Objects에 XtsIoDriver를 추가합니다.
 
 XtsIoDriver를 선택하고 Manager - Launch Configurator 버튼을 클릭합니다.   
 XTS 구성을 진행하는 창이 표시됩니다. Task는 XTS_Task를 선택합니다.   
+
 Device 선택 단계에서 각 Device를 순서에 따라 선택합니다.   
 트랙이 올바르게 구성되었는지 확인하고 다음으로 넘어갑니다.   
+
 이 예제에서는 2개의 무버를 사용합니다.   
 무버 추가 후 다음 버튼을 두번 눌러 설정을 완료합니다.   
 <img src="8 XtsIoDriver Manager 초기 설정.gif" width="40%">   
 
 가상의 XTS 장치를 사용할 것이므로 가상의 무버들의 초기 위치를 설정해줘야 합니다.   
 Launch Configurator 버튼을 다시 클릭하고 아래 이미지를 참조하여 설정을 완료합니다.   
+
 <img src="9 XtsIoDriver Manager 시뮬레이션 설정.gif" width="40%">   
 
 ### MOTION Parameter 설정
