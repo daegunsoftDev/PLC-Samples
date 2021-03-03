@@ -24,8 +24,8 @@ TC3 Advanced Motion Pack (3.1.10.14)
 ## 프로젝트 구현
 
 ### XTS 설치
-[TF5850 (3.20.705.0)](https://drive.google.com/file/d/13jeuTTDplzaEVIwHbdIx4sN3SKehuBl2/view?usp=sharing)   
-[TC3 Advanced Motion Pack (3.1.10.14)](https://drive.google.com/file/d/1KkWCg5_1TUxK2w9vqB9zu4BEDfKI_Cwq/view?usp=sharing)   
+[TF5850 (3.20.705.0)](https://drive.google.com/file/d/1kwbirsjRMprR-XAxFGDyAby39jpsAurl/view?usp=sharing)   
+[TC3 Advanced Motion Pack (3.1.10.14)](https://drive.google.com/file/d/1bPDNav58DQjhoBK_NNgb-H1zfb68s3sS/view?usp=sharing)   
 위의 두 개 항목들을 다운로드 받은 후 Target System에 설치합니다.
 
 ### 라이브러리 추가하기
