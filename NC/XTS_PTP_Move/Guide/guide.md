@@ -12,6 +12,7 @@
 - [테스트](#테스트)
   - [TcXtsViewer 실행](#TcXtsViewer-실행)
   - [PLC 실행 방법](#PLC-실행-방법)
+- [참조](#참조)
 
 ## 개요
 가상의 XTS 시스템을 구성하고 간단한 PTP 제어가 가능한 프로그램을 작성합니다.
@@ -126,3 +127,6 @@ Parameter 탭의 Modulo Factor가 Rail Length와 동일하도록 수정합니다
 3. bGroupEnable을 TRUE로 설정하여 CA Group을 동작 가능한 상태로 만듭니다.
 4. fPosition2, fVelocity2, fGap2를 각각 200, 20, 100으로 설정합니다.
 5. bMoveExecute2를 TRUE로 설정하면 Mover 2가 지정된 동작대로 이동합니다.
+
+## 참조
+- [Infosys: TF5410 | TwinCAT 3 Motion Collision Avoidance](https://infosys.beckhoff.com/english.php?content=../content/1033/tf5410_tc3_collision_avoidance/index.html&id=2112423517878358696)
