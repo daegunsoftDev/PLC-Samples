@@ -12,6 +12,7 @@
     * Broadcast는 불특정 다수에게 송신   
     * Multicast는 같은 그룹에게 송신   
     * Unicast는 특정 장치에게 송신   
+
 5. Box에 송신할 변수를 추가.   
 <img src="4. Box에 변수 추가.gif" width="75%">   
 6. 추가된 항목의 Output - VarData를 PLC 변수와 Link.
