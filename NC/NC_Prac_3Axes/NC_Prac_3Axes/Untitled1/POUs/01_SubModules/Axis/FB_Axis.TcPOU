@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="FB_Axis" Id="{ab30e8a8-f177-4a5c-8c2f-acb9e6957c3c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC ABSTRACT FB_Axis
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+	// ================== Axis reference ========================
+	Axis				: AXIS_REF;
+	
+	// ================== State variables =======================
+	bError				: BOOL;
+	nErrorID			: UDINT;
+	bMoves				: BOOL;
+	bHaltDone			: BOOL;
+	bResetDone			: BOOL;
+	bEnableDone			: BOOL;
+	bMovePosDone		: BOOL;
+END_VAR
+VAR
+	// ================== Axis function block ===================
+	fbMCPower			: MC_Power;
+	fbMcReset			: MC_Reset;
+	
+	// ================== Trigger ================================
+	rTrigReset			: R_TRIG;
+	
+	// ================== Target ================================
+	_fVelocity	: LREAL;
+	_fPosition	: LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="fPosition" Id="{9bab3313-6b0f-4e21-8cc0-bec14d2d6ae2}">
+      <Declaration><![CDATA[PROPERTY fPosition : LREAL]]></Declaration>
+      <Get Name="Get" Id="{629813d0-139e-4120-94ac-4e9dc39ac626}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[fPosition := _fPosition;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{619cb5fd-4770-474c-a578-cfec2eebfa96}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_fPosition := fPosition;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="fVelocity" Id="{ffa93d4d-1dcb-45e8-a95a-c597b4b60318}">
+      <Declaration><![CDATA[PROPERTY fVelocity : LREAL]]></Declaration>
+      <Get Name="Get" Id="{327edfd0-9486-4068-9066-38c90c543ba0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[fVelocity := _fVelocity;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f25ee4bc-2b51-47f4-a480-d637ee4910ed}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_fVelocity := fVelocity;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="M_Halt" Id="{8a3ef68d-1fdb-41ba-be92-e18639d211fb}">
+      <Declaration><![CDATA[METHOD PUBLIC ABSTRACT M_Halt : BOOL
+VAR_INPUT
+	bExecute	:	BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Invoke" Id="{f82352f2-856c-4aee-bb71-cbcde4291a4d}">
+      <Declaration><![CDATA[METHOD M_Invoke : BOOL
+VAR_INPUT
+	bEnable		: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ============================================
+
+fbMCPower(	Axis			:= Axis,
+			Enable			:= bEnable,
+			Enable_Positive	:= bEnable,
+			Enable_Negative := bEnable,
+			Status			=> bEnableDone);
+
+IF fbMCPower.Error OR Axis.Status.Error THEN
+	bError 				:= TRUE;
+	nErrorID			:= fbMCPower.ErrorID;
+END_IF
+
+Axis.ReadStatus();
+
+bMoves := Axis.Status.Moving;
+
+// ============================================]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_MovePos" Id="{61771372-e1a0-48db-9c1a-e50a26364813}">
+      <Declaration><![CDATA[METHOD PUBLIC ABSTRACT M_MovePos : BOOL
+VAR_INPUT
+	bExecute	: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Reset" Id="{bc60a92e-a5ce-4ad7-aa94-940a59135b93}">
+      <Declaration><![CDATA[METHOD M_Reset : BOOL
+VAR_INPUT
+	bExecute	: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT bExecute THEN
+	bResetDone		:= FALSE;	
+END_IF
+
+rTrigReset(CLK := bExecute);
+
+IF rTrigReset.Q THEN
+	bHaltDone		:= FALSE;
+	fbMcReset(	Axis	:= Axis,
+				Execute	:= TRUE);
+ELSE
+	fbMcReset(	Axis	:= Axis);
+END_IF
+
+// Done / Error
+IF fbMcReset.Done OR fbMcReset.Error THEN
+	bError			:= fbMcReset.Error;
+	nErrorID		:= fbMcReset.ErrorID;
+	bResetDone		:= fbMcReset.Done;
+	
+	fbMcReset(	Axis 	:= Axis,
+				Execute	:= FALSE);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Axis">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Axis.fPosition.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Axis.fPosition.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Axis.fVelocity.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Axis.fVelocity.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Axis.M_Halt">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Axis.M_Invoke">
+      <LineId Id="5" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="17" Count="2" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="20" Count="2" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="33" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Axis.M_MovePos">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Axis.M_Reset">
+      <LineId Id="31" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="32" Count="1" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="18" Count="1" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

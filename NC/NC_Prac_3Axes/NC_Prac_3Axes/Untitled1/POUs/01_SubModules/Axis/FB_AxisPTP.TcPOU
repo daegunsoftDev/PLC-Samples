@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="FB_AxisPTP" Id="{a6a38ca3-1810-406b-b014-1f56a4f6209e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_AxisPTP EXTENDS FB_Axis
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	// ================== Axis function block =================
+	fbMcMove	: MC_MoveVelocity;
+	fbMcHalt	: MC_Halt;
+	fbMcMovePos	: MC_MoveAbsolute;
+	
+	// ================== Trigger ==============================
+	rTrigHalt		: R_TRIG;
+	rTrigMove		: R_TRIG;
+	rTrigMovePos	: R_TRIG;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="M_Halt" Id="{32557a7c-dcf1-41ea-8258-b3e71d43fdfa}">
+      <Declaration><![CDATA[METHOD PUBLIC  M_Halt : BOOL
+VAR_INPUT
+	bExecute	:	BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT bExecute THEN
+	bHaltDone := FALSE;
+ELSE
+	fbMcMove(	Axis	:= Axis,
+				Execute := FALSE);
+END_IF
+
+rTrigHalt(CLK := bExecute);
+
+IF rTrigHalt.Q THEN
+	fbMcHalt(	Axis	:= Axis,
+				Execute	:= TRUE);
+ELSE
+	fbMcHalt(	Axis	:= Axis);
+END_IF
+
+IF fbMcHalt.Done OR fbMcHalt.Error OR fbMcHalt.CommandAborted THEN
+	bError		:= fbMcHalt.Error;
+	nErrorID	:= fbMcHalt.ErrorID;
+	bHaltDone	:= fbMcHalt.Done;
+	
+	fbMcHalt(	Axis	:= Axis,
+				Execute	:= FALSE);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_MoveFw" Id="{82f380d0-e82a-4411-a8f9-af52a89203e4}">
+      <Declaration><![CDATA[METHOD M_MoveFw : BOOL
+VAR_INPUT
+	bExecute	: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _fVelocity <= 0 THEN
+	bExecute := FALSE;
+END_IF
+
+IF bExecute THEN
+	fbMcMovePos(Axis := Axis, Execute := FALSE);
+ELSE
+	;
+END_IF
+
+rTrigMove(CLK := bExecute);
+
+IF rTrigMove.Q THEN
+	fbMcMove(	Axis		:= Axis,
+				Execute		:= TRUE,
+				Velocity	:= _fVelocity,
+				Direction	:= MC_Positive_Direction);
+END_IF
+
+// Error, Command aborted
+IF fbMcMove.Error OR fbMcMove.CommandAborted THEN
+	bError		:= fbMcMove.Error;
+	nErrorID	:= fbMcMove.ErrorID;
+	
+	fbMcMove(	Axis	:= Axis,
+				Execute	:= FALSE);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_MovePos" Id="{a7016dbb-48c9-47d3-b0e4-8214228031fb}">
+      <Declaration><![CDATA[METHOD PUBLIC M_MovePos : BOOL
+VAR_INPUT
+	bExecute	: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _fVelocity <= 0 THEN
+	bExecute := FALSE;
+END_IF
+
+IF bExecute THEN
+	fbMcMove(Axis := Axis, Execute := FALSE);
+ELSE
+	bMovePosDone := FALSE;
+END_IF
+
+rTrigMovePos(CLK := bExecute);
+
+IF rTrigMovePos.Q THEN
+	fbMcMovePos(	Axis		:= Axis,
+					Execute		:= TRUE,
+					Position	:= _fPosition,
+					Velocity	:= _fVelocity);
+ELSE
+	fbMcMovePos(	Axis		:= Axis);
+END_IF
+		
+IF fbMcMovePos.Done OR fbMcMovePos.CommandAborted OR fbMcMovePos.Error THEN
+	bMovePosDone	:= fbMcMovePos.Done;
+	bError			:= fbMcMovePos.Error;
+	nErrorID		:= fbMcMovePos.ErrorID;
+	
+	fbMcMovePos(Axis := Axis, Execute := FALSE);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Reset" Id="{7f47d796-b985-4399-855f-b4844c2f5ace}">
+      <Declaration><![CDATA[METHOD M_Reset : BOOL
+VAR_INPUT
+	bExecute	: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.M_Reset(bExecute := bExecute);
+
+IF bExecute THEN
+	fbMcMove(	Axis := Axis,
+			Execute := FALSE);
+
+	fbMcHalt(	Axis := Axis,
+				Execute := FALSE);
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_AxisPTP">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AxisPTP.M_Halt">
+      <LineId Id="53" Count="1" />
+      <LineId Id="60" Count="2" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="19" Count="1" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AxisPTP.M_MoveFw">
+      <LineId Id="60" Count="1" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="43" Count="2" />
+      <LineId Id="47" Count="1" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="49" Count="2" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="54" Count="2" />
+      <LineId Id="52" Count="1" />
+      <LineId Id="20" Count="2" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="24" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AxisPTP.M_MovePos">
+      <LineId Id="50" Count="23" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AxisPTP.M_Reset">
+      <LineId Id="10" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="24" Count="4" />
+      <LineId Id="23" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

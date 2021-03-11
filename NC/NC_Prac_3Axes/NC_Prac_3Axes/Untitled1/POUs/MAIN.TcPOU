@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="MAIN" Id="{41904e0e-59ab-42ff-a9d4-1dc6adad7d5b}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	fbAxis					: ARRAY[1..3] OF FB_AxisPTP;
+	nAnalogInput AT %I*		: INT;
+	bDigitalInput AT %I*	: ARRAY[1..3] OF BOOL;
+	
+	eState					: (INIT, READY, RUN);
+	fVelocity				: LREAL;
+	bRun					: BOOL;
+	i						: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[fVelocity := INT_TO_LREAL(nAnalogInput) / 32767 * 2000;
+
+FOR i := 1 TO 3 DO
+	bRun := bDigitalInput[i];
+	CASE eState OF
+		INIT:
+			fbAxis[i].M_Invoke(FALSE);
+		READY:
+			fbAxis[i].M_Invoke(TRUE);
+		RUN:
+			fbAxis[i].fVelocity := fVelocity;
+			fbAxis[i].M_MoveFw(bRun);
+			fbAxis[i].M_Halt(NOT bRun);
+	END_CASE
+END_FOR]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="30" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="20" Count="5" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="18" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

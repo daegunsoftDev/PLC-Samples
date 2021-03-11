@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <GVL Name="GVL" Id="{7bebd6dc-ffb7-477e-ab80-f99eaa86bb37}">
+    <Declaration><![CDATA[VAR_GLOBAL
+	bSafetyRun AT %Q*		:	BOOL;
+	bSafetyErrorAck AT %Q*	:	BOOL;
+	bSafetyComErr AT %I*	:	BOOL;
+	bSafetyFbErr AT %I*		:	BOOL;
+	bSafetyOutput AT %I*	:	BOOL;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>
