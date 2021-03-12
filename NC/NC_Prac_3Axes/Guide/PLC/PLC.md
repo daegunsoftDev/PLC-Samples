@@ -15,6 +15,14 @@
 ## 프로젝트 구현
 
 ### I/O 설정 및 모터 테스트
+1. I/O - Devices에서 Scan을 실행합니다.   
+실습용 시스템에 AX5203과 EL7201이 설치되어 있으므로 아래와 같은 대화상자가 표시됩니다.
+<img src="1 Scan Motors 대화상자.png" width="20%">
+모터 종류를 수동으로 설정하는 방법을 설명하기 위해 아니요를 선택합니다.   
+새로 추가되는 Axis의 종류는 NC를 선택합니다.   
+<img src="2 Axis 추가 대화상자.png" width="20%">
+
+
 1. I/O에서 **AX5203-0000-0203**을 선택합니다.   
 **AX5203-0000-0203**의 Channel A에는 **AM8022-0D20-0000**, Channel B에는 **AM8022-0D00-0000**이 연결되어 있습니다.   
 Drive Manager의 Channel A - Configuration - Motor and Feedback에서 Select motor 버튼을 클릭하여 모터 종류를 지정합니다.   
