@@ -5,7 +5,7 @@
   - [프로젝트 생성](#프로젝트-생성)
   - [Target System 설정](#Target-System-설정)
   - [Alias Devices 설정](#Alias-Devices-설정)
-  - [Safety Application Language 설정](#Safety Application Language 설정)
+  - [Safety Application Language 설정](#Safety-Application-Language-설정)
   - [GVL 생성 및 변수 Link](#GVL-생성-및-변수-Link)
   - [프로젝트 Verify 및 Activate](#프로젝트-Verify-및-Activate)
 - [테스트](#테스트)
