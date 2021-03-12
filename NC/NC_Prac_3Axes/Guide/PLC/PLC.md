@@ -42,8 +42,12 @@
 4. Activate Configuration 버튼을 눌러 변경사항을 적용하고 모터가 정상적으로 움직이는지 테스트합니다.
 
 ### 코드 작성 및 테스트
-이번 예제에서는 실습용 시스템의 노브(**AI_00**)와 토글 스위치(**DI_00 ~ DI_02**)를 사용하여 모터를 제어합니다.   
-Axis를 객체로 다루기 위해 [PLC-NC-Package](https://github.com/daegunsoftDev/PLC-NC-Package) 프로젝트의 Axis 관련 코드를 사용했습니다.   
+   이번 예제에서는 실습용 시스템의 노브(**AI_00**)와 토글 스위치(**DI_00 ~ DI_02**)를 사용하여 모터를 제어합니다.   
+   Axis를 객체로 다루기 위해 [PLC-NC-Package](https://github.com/daegunsoftDev/PLC-NC-Package) 프로젝트의 Axis 관련 코드를 사용했습니다.   
 
-모터의 동작은 **DI_00 ~ DI_02** 토글 스위치를 통해 제어됩니다.   
-모터의 속도는 **AI_00** 노브를 통해 제어됩니다. 속도를 변경하기 위해서 우선 모터를 정지시킨 후 다시 동작시켜야 합니다.
+   모터의 동작은 **DI_00 ~ DI_02** 토글 스위치를 통해 제어됩니다.   
+   모터의 속도는 **AI_00** 노브를 통해 제어됩니다. 속도를 변경하기 위해서 우선 모터를 정지시킨 후 다시 동작시켜야 합니다.
+
+## 참조
+
+* [NC Errors | TwinCAT 3](https://infosys.beckhoff.com/content/1033/tc3ncerrcode/index.html)
