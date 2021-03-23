@@ -24,9 +24,14 @@
 SAFETY를 선택하고 새 프로젝트를 생성합니다.   
 목록에서 TwinCAT Safety Project Preconfigured Inputs를 선택합니다.
 
+<img src="1 Safety Project 추가.png" width="90%">
+
 ### Target System 설정
 Safety Project의 Target System을 선택합니다.   
 Physical Device를 **EL6900**으로 설정하고 **Safe Address**를 **Hardware Address**와 동일하게 설정합니다.
+
+<img src="2 Target System 설정.png" width="50%">
+
 - Hardware Address는 모듈 측면의 DIP 스위치를 통해 설정하며 중복될 수 없습니다.
 
 ### Alias Devices 설정
@@ -34,7 +39,11 @@ Physical Device를 **EL6900**으로 설정하고 **Safe Address**를 **Hardware 
 항목명은 각각 **FbErr, ComErr, Output** 으로 설정합니다.
 
 2. Alias Device의 Context menu에서 **Import Alias-Device(s) from I/O-configuration**을 선택합니다.   
-**EL1904**와 **EL2904**를 선택하고 OK 버튼을 누릅니다.
+    **EL1904**와 **EL2904**를 선택하고 OK 버튼을 누릅니다.
+
+  위의 과정을 완료한 결과는 아래 사진과 같습니다.
+
+  <img src="3 Alias Devices 구성.png" width="40%">
 
 ### Safety Application Language 설정
 1. TwinSafeGroup1.sal을 선택하고 Toolbox에서 safeOr를 선택하여 Network1에 추가합니다.   
@@ -78,3 +87,7 @@ SafeGroup의 상태가 Run 상태여야 Safety Logic이 작동합니다.
 bSafetyComErr가 FALSE가 되고 Group 상태가 Run으로 변경됩니다.   
 
 4. Safety In_00 토글 스위치를 조작하여 Safety Logic이 정상적으로 동작하는지 확인합니다.   
+
+## 참조
+
+[Beckhoff Infosys: Safety](https://infosys.beckhoff.com/english.php?content=../content/1033/tc3_safety_intro/html/tc3_safety_intro.htm&id=4314916724452125872)
