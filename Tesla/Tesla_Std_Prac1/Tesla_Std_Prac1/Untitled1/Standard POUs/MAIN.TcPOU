@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="MAIN" Id="{d5fa594b-018f-4229-88ac-cd2d1c3a059f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	fbSortingSystemTSM			: FB_SortingSystem_TSM;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// TSMs
+	fbSortingSystemTSM();]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

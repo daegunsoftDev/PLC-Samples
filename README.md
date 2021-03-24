@@ -12,3 +12,8 @@
   XTS 시스템을 구성하고 2개의 Mover를 제어하는 예제.
   - [NC_Prac_3Axes](NC/NC_Prac_3Axes/)   
   3개의 모터를 제어하는 실습용 시스템을 위한 예제 프로젝트.
+
+- Tesla
+  Tesla Standard가 적용된 예제 코드
+  - [Tesla_Std_Prac1](Tesla/Tesla_Std_Prac1/)
+  1개의 Axis를 제어하는 TSM 구성 예제.

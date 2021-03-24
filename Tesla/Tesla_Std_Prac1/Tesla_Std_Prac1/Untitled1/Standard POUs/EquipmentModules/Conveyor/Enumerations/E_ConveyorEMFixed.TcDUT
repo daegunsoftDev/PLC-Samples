@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <DUT Name="E_ConveyorEMFixed" Id="{d0f1e1b7-3229-4c9d-bb9a-7aa56efa9604}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_ConveyorEMFixed :
+(
+	Stopped		:= 1,
+	Running		:= 2,
+	LastFixed	:= 3
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

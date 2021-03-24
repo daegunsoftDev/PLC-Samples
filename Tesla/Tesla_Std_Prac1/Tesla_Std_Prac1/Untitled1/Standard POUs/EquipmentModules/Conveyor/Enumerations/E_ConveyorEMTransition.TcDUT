@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <DUT Name="E_ConveyorEMTransition" Id="{0423fdf9-e11f-40a8-be77-9716b82d90dc}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_ConveyorEMTransition :
+(
+	Starting		:= 1,
+	Stopping		:= 2,
+	Recovery		:= 3,
+	LastTransition	:= 4
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

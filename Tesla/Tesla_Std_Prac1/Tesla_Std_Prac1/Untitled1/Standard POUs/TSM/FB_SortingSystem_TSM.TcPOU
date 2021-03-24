@@ -1,0 +1,402 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="FB_SortingSystem_TSM" Id="{f9741123-7b69-44b4-8663-6344edae9ebe}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SortingSystem_TSM EXTENDS FB_TSM
+VAR
+	fbConveyorEM			: FB_Conveyor_EM;
+
+	ButtonFaultReset    AT %I* : BOOL;
+    ButtonStartProceed  AT %I* : BOOL;
+    ButtonAbort         AT %I* : BOOL;
+	ButtonRun			AT %I* : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^();
+
+// System Interlocks
+    // The system interlock inherits the system interlock from the TSM's EMs OR from the safety zone. More interlocks can be added that are not part of the EM or safety zone interlocks.  
+    SUPER^.P_SystemInterlock.M_Set(Index := 0, Description := 'Always TRUE' , Condition := TRUE);   // network devices OK
+
+// Button Requests
+    IF ButtonFaultReset THEN
+        ButtonFaultReset := FALSE;
+        SUPER^.M_Retry();
+    ELSIF ButtonStartProceed THEN
+        ButtonStartProceed := FALSE;
+        SUPER^.M_Proceed();
+    ELSIF ButtonAbort THEN
+        ButtonAbort := FALSE;
+        SUPER^.M_Abort();
+    END_IF
+
+// State Permissives
+// Start
+    SUPER^.P_StartPermissive.M_Set(index := 0, Description := 'FlipGantryEM in Fixed State', Condition := fbConveyorEM.P_Status.FixedStateIndex <> 0);
+// Home
+    SUPER^.P_HomePermissive.M_Set(index := 0, Description := 'Always TRUE', Condition := TRUE);
+// Proceed
+    SUPER^.P_ProceedPermissive.M_Set(index := 0, Description := 'Always TRUE', Condition := TRUE);
+
+// Retry EMs on TSM Retry
+    IF SUPER^.P_Status.Retry THEN
+        fbConveyorEM.M_Retry();
+	END_IF
+
+// Equipment Modules
+	M_ConveyorEM();]]></ST>
+    </Implementation>
+    <Folder Name="Equipment Modules" Id="{96c199b6-20e6-4705-814f-d7d19ae55b93}" />
+    <Method Name="_M_Aborting" Id="{8f9bdb77-f42a-4993-b418-89ebbdbe8984}">
+      <Declaration><![CDATA[METHOD PROTECTED _M_Aborting]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Abort child Equipment Modules
+    fbConveyorEM.M_Abort();
+
+// Aborting Complete Permissives - Method will be cyclically executed until all permissives are met
+    SUPER^.P_AbortCompletePermissive.M_Set(Index := 0,
+										   Description := 'Conveyor Aborted',
+										   Condition := fbConveyorEM.P_Status.StateStatus <> E_DeviceStatus.Active OR
+														fbConveyorEM.P_Status.StateStatus <> E_DeviceStatus.Aborting);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Homing" Id="{e934b0ae-fe24-417b-9f36-1c429a5e40a6}">
+      <Declaration><![CDATA[METHOD PROTECTED _M_Homing
+//=========================================================================================
+//    local constants
+//=========================================================================================
+VAR CONSTANT
+    START                                                       : UDINT := 10;       // 10
+
+    COMPLETE                                                    : UDINT := 1000;     // 1000
+END_VAR
+//=========================================================================================
+//    local variables
+//=========================================================================================
+VAR_INST
+    
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set first step to 10
+SUPER^.P_Configuration.HomingFirstStep := 10;
+
+CASE SUPER^.P_HomingSequencer.P_Status.CurrentStep OF
+	START:
+        // Branch 0: At fixed state, skip PalletPositioner recovery and Finish
+		SUPER^.P_HomingSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'No Recovery Needed', NextStep := COMPLETE, CheckWhileFaulted := TRUE);
+		SUPER^.P_HomingSequencer.M_SetBranchPermissive(BranchIndex := 0,
+                                                        PermissiveIndex := 0,
+                                                        Description := 'At Fixed State',
+                                                        Condition := fbConveyorEM.P_Status.FixedStateIndex <> 0);
+	COMPLETE:
+		_M_SeqComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Pausing" Id="{d378e491-b1bd-4e62-a8fb-e98adba2e8d2}">
+      <Declaration><![CDATA[METHOD PROTECTED _M_Pausing
+VAR CONSTANT
+    COMMAND_PAUSE : UDINT := 10;
+	FINISH        : UDINT := 999;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set first step to 10
+SUPER^.P_Configuration.PausingFirstStep := 10;
+
+// Pausing Sequence
+CASE SUPER^.P_PausingSequencer.P_Status.CurrentStep OF	
+	COMMAND_PAUSE:
+		CASE SUPER^.P_PausingSequencer.P_StepStatus.StepState OF
+			E_StepState.ActiveEntry:
+                // Set step configurations here
+                SUPER^.P_PausingSequencer.P_StepConfig.Name := 'Pause EMs';
+				SUPER^.P_PausingSequencer.P_StepConfig.Timeout := T#15S; // Optional step timeout. Set to zero to ignore
+                // Issue EM commands here
+				    fbConveyorEM.M_Pause();
+			E_StepState.ActiveDuring:
+                // Check for errors on EMs commanded on this step here
+				SUPER^.P_PausingSequencer.M_CheckFaultCondition(Error := fbConveyorEM.P_Error);
+            E_StepState.ActiveExit:
+                //
+            E_StepState.FaultedEntry:
+                //
+            E_StepState.FaultedDuring:
+                //
+            E_StepState.FaultedExit:
+                //
+        END_CASE
+        // Branch 0: EMs Paused Successfully
+		SUPER^.P_PausingSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'EMs Paused Successfully', NextStep := FINISH, CheckWhileFaulted := TRUE);
+		SUPER^.P_PausingSequencer.M_SetBranchPermissive(BranchIndex := 0,
+                                                           PermissiveIndex := 0,
+                                                           Description := 'fbConveyorEM Paused OR Complete',
+                                                           Condition := fbConveyorEM.P_Status.StateStatus = E_DeviceStatus.Paused OR
+                                                                        fbConveyorEM.P_Status.StateStatus = E_DeviceStatus.Complete);                                                 
+        
+	FINISH:
+        // Sequence must end with the following method call
+		_M_SeqComplete(); 
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Proceeding" Id="{f1eaf918-cb4e-4418-af2f-37ab00ae53f9}">
+      <Declaration><![CDATA[METHOD PROTECTED _M_Proceeding
+VAR CONSTANT
+    COMMAND_PROCEED : UDINT := 10;
+	FINISH          : UDINT := 999;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set first step to 10
+SUPER^.P_Configuration.ProceedingFirstStep := 10;
+
+// Proceeding Sequence
+CASE SUPER^.P_ProceedingSequencer.P_Status.CurrentStep OF	
+	COMMAND_PROCEED:
+		CASE SUPER^.P_ProceedingSequencer.P_StepStatus.StepState OF
+			E_StepState.ActiveEntry:
+                // Set step configurations here
+                SUPER^.P_ProceedingSequencer.P_StepConfig.Name := 'Proceed EMs';
+				SUPER^.P_ProceedingSequencer.P_StepConfig.Timeout := T#15S; // Optional step timeout. Set to zero to ignore
+                // Issue EM commands here
+				    fbConveyorEM.M_Proceed();
+			E_StepState.ActiveDuring:
+                // Check for errors on EMs commanded on this step here
+				SUPER^.P_ProceedingSequencer.M_CheckFaultCondition(Error := fbConveyorEM.P_Error);
+            E_StepState.ActiveExit:
+                //
+            E_StepState.FaultedEntry:
+                //
+            E_StepState.FaultedDuring:
+                //
+            E_StepState.FaultedExit:
+                //
+        END_CASE
+        // Branch 0: EMs Proceeded Successfully
+		SUPER^.P_ProceedingSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'EMs Proceeded Successfully', NextStep := FINISH, CheckWhileFaulted := TRUE);
+		SUPER^.P_ProceedingSequencer.M_SetBranchPermissive(BranchIndex := 0,
+                                                           PermissiveIndex := 0,
+                                                           Description := 'fbConveyorEM Active OR Complete',
+                                                           Condition := fbConveyorEM.P_Status.StateStatus = E_DeviceStatus.Active OR
+                                                                        fbConveyorEM.P_Status.StateStatus = E_DeviceStatus.Complete);                                                    
+        
+	FINISH:
+        // Sequence must end with the following method call
+		_M_SeqComplete(); 
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Running" Id="{ae1be1e2-42ee-4656-b3b8-7841ed3d9e9e}">
+      <Declaration><![CDATA[METHOD PROTECTED _M_Running
+VAR CONSTANT
+    START_BRANCH	: UDINT := 10;
+    START			: UDINT := 20;
+	RUNNING			: UDINT := 30;
+	STOP			: UDINT := 40;
+	FINISH			: UDINT := 999;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set first step to 10
+SUPER^.P_Configuration.RunningFirstStep := 10;
+
+CASE SUPER^.P_RunningSequencer.P_Status.CurrentStep OF
+	START_BRANCH:
+        // Branch 0:
+		SUPER^.P_RunningSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'Conveyor START', NextStep := START, CheckWhileFaulted := TRUE);
+		SUPER^.P_RunningSequencer.M_SetBranchPermissive(BranchIndex := 0,
+                                                        PermissiveIndex := 0,
+                                                        Description := 'EM at Stopped',
+                                                        Condition := fbConveyorEM.P_Status.FixedStateIndex = E_ConveyorEMFixed.Stopped);
+		SUPER^.P_RunningSequencer.M_SetBranchPermissive(BranchIndex := 0,
+                                                        PermissiveIndex := 1,
+                                                        Description := 'ButtonRun is TRUE',
+                                                        Condition := ButtonRun);
+
+        // Branch 1:
+		SUPER^.P_RunningSequencer.M_SetBranchConfig(BranchIndex := 1, Description := 'Conveyor Running', NextStep := RUNNING, CheckWhileFaulted := TRUE);
+		SUPER^.P_RunningSequencer.M_SetBranchPermissive(BranchIndex := 1,
+                                                        PermissiveIndex := 0,
+                                                        Description := 'EM at Running',
+                                                        Condition := fbConveyorEM.P_Status.FixedStateIndex = E_ConveyorEMFixed.Running);
+    START:
+        CASE SUPER^.P_RunningSequencer.P_StepStatus.StepState OF
+			E_StepState.ActiveEntry:
+                // Set step configurations here
+                SUPER^.P_RunningSequencer.P_StepConfig.Name := 'Command EM to Run Conveyor';
+				SUPER^.P_RunningSequencer.P_StepConfig.Timeout := T#5S; // Optional step timeout. Set to zero to ignore
+                SUPER^.P_RunningSequencer.P_StepConfig.IgnoreHold := FALSE; // This step is pausable.
+                SUPER^.P_RunningSequencer.P_StepConfig.NextStepAfterRetry := 0; // Optional.  Set to zero to ignore
+                // Issue EM commands here
+                    fbConveyorEM.M_TransitionNumberRequest(E_ConveyorEMTransition.Starting);
+			E_StepState.ActiveDuring:
+                // Check for errors on EMs commanded on this step here
+                SUPER^.P_RunningSequencer.M_CheckFaultCondition(Error := fbConveyorEM.P_Error);
+            E_StepState.ActiveExit:
+                //
+            E_StepState.FaultedEntry:
+                //
+            E_StepState.FaultedDuring:
+                //
+            E_StepState.FaultedExit:
+                //
+        END_CASE
+		// Branch 0: EMs Proceeded Successfully
+		SUPER^.P_RunningSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'ConveyorEM Transition Finished', NextStep := RUNNING, CheckWhileFaulted := TRUE);
+		SUPER^.P_RunningSequencer.M_SetBranchPermissive(BranchIndex := 0,
+                                                        PermissiveIndex := 0,
+                                                        Description := 'EM at Running',
+                                                        Condition := fbConveyorEM.P_Status.FixedStateIndex = E_ConveyorEMFixed.Running);
+    RUNNING:
+        CASE SUPER^.P_RunningSequencer.P_StepStatus.StepState OF
+			E_StepState.ActiveEntry:
+                // Set step configurations here
+                SUPER^.P_RunningSequencer.P_StepConfig.Name := 'Command EM to Run Conveyor';
+				SUPER^.P_RunningSequencer.P_StepConfig.Timeout := T#0S; // Optional step timeout. Set to zero to ignore
+                SUPER^.P_RunningSequencer.P_StepConfig.IgnoreHold := FALSE; // This step is pausable.
+                SUPER^.P_RunningSequencer.P_StepConfig.NextStepAfterRetry := 0; // Optional.  Set to zero to ignore
+                // Issue EM commands here
+			E_StepState.ActiveDuring:
+                // Check for errors on EMs commanded on this step here
+                SUPER^.P_RunningSequencer.M_CheckFaultCondition(Error := fbConveyorEM.P_Error);
+            E_StepState.ActiveExit:
+                //
+            E_StepState.FaultedEntry:
+                //
+            E_StepState.FaultedDuring:
+                //
+            E_StepState.FaultedExit:
+                //
+        END_CASE
+		// Branch 0: EMs Proceeded Successfully
+		SUPER^.P_RunningSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'TSM Received Complete Signal', NextStep := STOP, CheckWhileFaulted := TRUE);
+		SUPER^.P_RunningSequencer.M_SetBranchPermissive(BranchIndex := 0,
+                                                        PermissiveIndex := 0,
+                                                        Description := 'ButtonRun is FALSE',
+                                                        Condition := NOT ButtonRun);
+    STOP:
+        CASE SUPER^.P_RunningSequencer.P_StepStatus.StepState OF
+			E_StepState.ActiveEntry:
+                // Set step configurations here
+                SUPER^.P_RunningSequencer.P_StepConfig.Name := 'Command EM to Run Conveyor';
+				SUPER^.P_RunningSequencer.P_StepConfig.Timeout := T#5S; // Optional step timeout. Set to zero to ignore
+                SUPER^.P_RunningSequencer.P_StepConfig.IgnoreHold := FALSE; // This step is pausable.
+                SUPER^.P_RunningSequencer.P_StepConfig.NextStepAfterRetry := 0; // Optional.  Set to zero to ignore
+                // Issue EM commands here
+                    fbConveyorEM.M_TransitionNumberRequest(E_ConveyorEMTransition.Stopping);
+			E_StepState.ActiveDuring:
+                // Check for errors on EMs commanded on this step here
+                SUPER^.P_RunningSequencer.M_CheckFaultCondition(Error := fbConveyorEM.P_Error);
+            E_StepState.ActiveExit:
+                //
+            E_StepState.FaultedEntry:
+                //
+            E_StepState.FaultedDuring:
+                //
+            E_StepState.FaultedExit:
+                //
+        END_CASE
+		// Branch 0: EMs Proceeded Successfully
+		SUPER^.P_RunningSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'ConveyorEM Transition Finished', NextStep := FINISH, CheckWhileFaulted := TRUE);
+		SUPER^.P_RunningSequencer.M_SetBranchPermissive(BranchIndex := 0,
+                                                        PermissiveIndex := 0,
+                                                        Description := 'EM at Stopped',
+                                                        Condition := fbConveyorEM.P_Status.FixedStateIndex = E_ConveyorEMFixed.Stopped);
+	FINISH:
+        // Sequence must end with the following method call
+		_M_SeqComplete(); 
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_ConveyorEM" Id="{fecb3ecc-8902-4fb7-833c-fbaa8f6903cd}" FolderPath="Equipment Modules\">
+      <Declaration><![CDATA[METHOD M_ConveyorEM
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set System Interlocks
+// Index 0 is set in EM FB
+
+// Call EM
+    fbConveyorEM();]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_SortingSystem_TSM">
+      <LineId Id="9" Count="0" />
+      <LineId Id="13" Count="3" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="41" Count="9" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="18" Count="1" />
+      <LineId Id="22" Count="3" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="27" Count="3" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SortingSystem_TSM._M_Aborting">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="4" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SortingSystem_TSM._M_Homing">
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="23" Count="4" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="21" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SortingSystem_TSM._M_Pausing">
+      <LineId Id="6" Count="12" />
+      <LineId Id="20" Count="2" />
+      <LineId Id="24" Count="14" />
+      <LineId Id="44" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SortingSystem_TSM._M_Proceeding">
+      <LineId Id="21" Count="12" />
+      <LineId Id="35" Count="2" />
+      <LineId Id="39" Count="15" />
+      <LineId Id="60" Count="3" />
+      <LineId Id="16" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SortingSystem_TSM._M_Running">
+      <LineId Id="30" Count="3" />
+      <LineId Id="83" Count="5" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="150" Count="2" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="74" Count="4" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="38" Count="19" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="137" Count="3" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="93" Count="8" />
+      <LineId Id="103" Count="10" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="143" Count="4" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="115" Count="20" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="154" Count="4" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="80" Count="1" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="59" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SortingSystem_TSM.M_ConveyorEM">
+      <LineId Id="6" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="16" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

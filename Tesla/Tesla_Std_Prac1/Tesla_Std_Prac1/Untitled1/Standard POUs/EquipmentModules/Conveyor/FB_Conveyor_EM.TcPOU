@@ -1,0 +1,554 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="FB_Conveyor_EM" Id="{d1f13493-1e58-4c9f-a190-050f43df8e89}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Conveyor_EM EXTENDS FB_EquipmentModule
+VAR
+	// Devices
+	fbConveyor				: FB_Servo;
+	ConveyorMoves			: ARRAY[1..1] OF ST_ServoMove;
+	ConveyorMoveTolerance	: LREAL := 0.1;
+	
+	ConveyorTransitionStates	: ARRAY[E_ConveyorEMFixed.Stopped..E_ConveyorEMFixed.LastFixed] OF ST_EmTransitionState;
+	ConveyorFixedStates			: ARRAY[E_ConveyorEMTransition.Starting..E_ConveyorEMTransition.LastTransition] OF ST_EmFixedState;
+	UnknownTransitions			: ARRAY[1..Param_EquipmentModule.MAX_TRANSITIONS] OF ST_TransitionDefinition;
+
+	//First Scan Bit for configurations
+	FirstScan					: BOOL := TRUE;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Configuration
+IF FirstScan THEN
+    SUPER^.P_Configuration.Definition.description  := 'Conveyor to move boxes';
+    SUPER^.P_Configuration.Definition.deviceType   := 'Equipment Module';
+    SUPER^.P_Configuration.Definition.displayName  := 'ConveyorEM';
+    SUPER^.P_Configuration.Definition.parentName   := 'IDK';
+    SUPER^.P_Configuration.Definition.categoryName := 'EM';
+END_IF
+
+// Call Body of Super Class
+    SUPER^(TransitionStates := ConveyorTransitionStates, FixedStates := ConveyorFixedStates);
+
+// Configure Unknown Transitions
+    UnknownTransitions[1].Name    := ConveyorTransitionStates[E_ConveyorEMTransition.Stopping].Name;
+    UnknownTransitions[1].Command := ConveyorTransitionStates[E_ConveyorEMTransition.Stopping].Command;
+    UnknownTransitions[1].Target  := ConveyorTransitionStates[E_ConveyorEMTransition.Stopping].Target;
+	
+	SUPER^.P_Configuration.UnknownTransitions := UnknownTransitions;
+
+// System Interlocks
+    // The system interlock inherits the interlock from the safety zone OR from its child devices (ex: Actuator)
+	SUPER^.P_SystemInterlock.M_Set(Index := 0, Description := 'Always TRUE', Condition := TRUE);  
+
+// Control Devices
+	_M_Conveyor();
+
+// Fixed States
+	_M_Running();
+	_M_Stopped();
+
+// Transition States
+	_M_Starting();
+	_M_Stopping();
+
+// Unknown Transitions
+	
+
+FirstScan := FALSE;]]></ST>
+    </Implementation>
+    <Folder Name="Control Devices" Id="{91a9f5ef-a309-4ef1-92e8-2a2599c50379}" />
+    <Folder Name="Fixed States" Id="{b94a5c82-dbe1-4df5-bf9e-c67594026b27}" />
+    <Folder Name="Transition States" Id="{6f095e9a-6e66-40b3-87e8-9a2b87596fff}" />
+    <Folder Name="UnknownTransitions" Id="{f491d52a-dfa4-41aa-9de2-e6b155f2ceae}" />
+    <Method Name="_M_Aborting" Id="{ff4bf64a-261b-43df-a932-69fa5da9319e}">
+      <Declaration><![CDATA[METHOD PROTECTED _M_Aborting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Aborting Complete Permissives - Method will be cyclically executed until all permissives are met
+    //Typically, stop commands will be executed to some or all control devices and a permissive will set for each device checking it is stopped or idle
+fbConveyor.M_Stop(0, 0);
+
+SUPER^.fbAbortingCompletePermissive.M_Set(Index := 0, Description := 'Conveyor is Stopped', Condition := fbConveyor.P_Status.idle);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Conveyor" Id="{6d106c50-5446-4271-bc6b-de6ff070e282}" FolderPath="Control Devices\">
+      <Declaration><![CDATA[METHOD _M_Conveyor
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//All devices are defined & initialized in the Main FB
+//Use 1 Method per device to combine all device configurations and device FB call
+
+//Configuration
+IF FirstScan THEN
+    //General Configuration
+	fbConveyor.P_Configuration.Definition.displayName  := 'Z Servo';
+	fbConveyor.P_Configuration.Definition.description  := 'Flipper Gantry Servo';
+	fbConveyor.P_Configuration.Definition.parentName   := 'FlipGantryEM';
+	fbConveyor.P_Configuration.Definition.categoryName := 'Device';
+	fbConveyor.P_Configuration.Definition.deviceType   := 'Servo';
+
+    fbConveyor.P_Configuration.SafetyStopDeceleration := 0; // Using 0 forces it to use the deceleration of the previous/active command
+    fbConveyor.P_Configuration.SafetyStopJerk := 0; // Using 0 forces it to use the jerk of the previous/active command
+END_IF
+
+// Setup Servo Moves Array
+ConveyorMoves[1].Name := 'Run';
+ConveyorMoves[1].Acceleration := 500;
+ConveyorMoves[1].Deceleration := 500;
+ConveyorMoves[1].Direction := 1;
+ConveyorMoves[1].Jerk := 5000;
+ConveyorMoves[1].MoveType := E_ServoMoveType.Velocity;
+ConveyorMoves[1].Velocity := 500;
+ConveyorMoves[1].Permissive.M_Set(Index := 0, Description := '', Condition := TRUE);
+
+fbConveyor(Moves := ConveyorMoves);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Pausing" Id="{f61c38cd-08f0-4e7c-9f95-2a5fa03c658a}">
+      <Declaration><![CDATA[METHOD PROTECTED _M_Pausing
+VAR CONSTANT
+    PAUSE		: UDINT := 10;
+    FINISH		: UDINT := 999;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Method can be used to send commands to devices either directly or using a built in sequencer (fbPausingSequencer)
+SUPER^.fbPausingSequencer.P_Config.FirstStep := PAUSE;
+
+// Pausing Sequence
+CASE SUPER^.fbPausingSequencer.P_Status.CurrentStep OF
+	PAUSE:
+		CASE SUPER^.fbPausingSequencer.P_StepStatus.StepState OF
+			E_StepState.ActiveEntry:
+                // Set step configurations here
+                SUPER^.fbPausingSequencer.P_StepConfig.Name := 'Pause Conveyor';
+				SUPER^.fbPausingSequencer.P_StepConfig.Timeout := T#15S; // Optional step timeout. Set to zero to ignore
+                SUPER^.fbPausingSequencer.P_StepConfig.IgnoreHold := FALSE; // This step is pausable.
+                SUPER^.fbPausingSequencer.P_StepConfig.NextStepAfterRetry := 0; // Optional.  Set to zero to ignore
+                // Issue device commands here
+					fbConveyor.M_Halt(0, 0);
+			E_StepState.ActiveDuring:
+                // Check for errors on devices commanded on this step here
+				SUPER^.fbPausingSequencer.M_CheckFaultCondition(Error := fbConveyor.P_Error);
+            E_StepState.ActiveExit:
+                //
+            E_StepState.FaultedEntry:
+                //
+            E_StepState.FaultedDuring:
+                //
+            E_StepState.FaultedExit:
+                //
+        END_CASE
+        // Branch 0: Conveyor VFD paused successfully
+		SUPER^.fbPausingSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'Conveyor is Stopped', NextStep := FINISH, CheckWhileFaulted := TRUE);
+		SUPER^.fbPausingSequencer.M_SetBranchPermissive(BranchIndex := 0, PermissiveIndex := 0, Description := 'Conveyor is Stopped', Condition := fbConveyor.P_Status.Idle);
+	FINISH:
+        //Method will be cyclically executed until the following method is executed
+		M_PausingComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Proceeding" Id="{c910f91b-ef3f-4616-973d-e4697f6b6a34}">
+      <Declaration><![CDATA[METHOD PROTECTED _M_Proceeding
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_ProceedingComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Recovery" Id="{6f0d61e3-bfcd-492a-a7b7-9b8b477e81c6}" FolderPath="UnknownTransitions\">
+      <Declaration><![CDATA[METHOD _M_Recovery
+VAR_INST
+	State	        : REFERENCE TO ST_EmTransitionState;
+END_VAR
+VAR CONSTANT
+	START	: UDINT := 10;
+	RESET	: UDINT := 20;
+	FINISH	: UDINT := 999;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set Reference
+State REF= THIS^.ConveyorTransitionStates[E_ConveyorEMTransition.Recovery];
+
+// Name this Transition State
+	State.Name := 'Recovery';
+	State.Command := 'Recovery';
+	State.Target := THIS^.ConveyorFixedStates[E_ConveyorEMFixed.Stopped].Name;
+
+// Permissives that must be met in order to call this Transition State
+	State.fbPermissive.M_Set(Index := 0, Description := 'ALWAYS TRUE', Condition := TRUE);
+	
+// Set first step to 10
+	State.fbSequencer.P_Config.FirstStep := 10;
+
+// Sequence
+    CASE State.fbSequencer.P_Status.CurrentStep OF
+		START:
+			CASE state.fbSequencer.P_StepStatus.StepState OF
+				E_StepState.ActiveEntry:
+                    // Set step configurations here
+                    State.fbSequencer.P_StepConfig.Name := 'Conveyor Halt';
+                    State.fbSequencer.P_StepConfig.Timeout := T#10S; // Optional step timeout. Set to zero to ignore
+                    State.fbSequencer.P_StepConfig.IgnoreHold := FALSE; // This step is pausable.
+                    State.fbSequencer.P_StepConfig.NextStepAfterRetry := RESET; // Optional.  Set to zero to ignore
+                    // Issue device commands here
+					fbConveyor.M_Halt(0, 0);
+                E_StepState.ActiveDuring:
+					// Check for errors on devices commanded on this step here
+                    State.fbSequencer.M_CheckFaultCondition(Error := fbConveyor.P_Error);
+                E_StepState.ActiveExit:
+                    //
+                E_StepState.FaultedEntry:
+                    //
+                E_StepState.FaultedDuring:
+                    //
+                E_StepState.FaultedExit:
+                    //
+			END_CASE
+            // Branch 0: Conveyor Halted Successfully
+                State.fbSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'Conveyor Halted', NextStep := FINISH, CheckWhileFaulted := FALSE);
+                State.fbSequencer.M_SetBranchPermissive(BranchIndex := 0,
+														PermissiveIndex := 0,
+														Description := 'Conveyor Halted',
+														Condition := NOT fbConveyor.P_Status.Busy AND fbConveyor.P_Status.Idle);
+		RESET:
+            CASE State.fbSequencer.P_StepStatus.StepState OF
+                E_StepState.ActiveEntry:
+                    // Set step configurations here
+                    State.fbSequencer.P_StepConfig.Name := 'Conveyor Reset';
+                    State.fbSequencer.P_StepConfig.Timeout := T#10S; // Optional step timeout. Set to zero to ignore
+                    State.fbSequencer.P_StepConfig.IgnoreHold := FALSE; // This step is pausable.
+                    State.fbSequencer.P_StepConfig.NextStepAfterRetry := 0; // Optional.  Set to zero to ignore
+                    // Issue device commands here
+                    fbConveyor.M_Reset();
+                E_StepState.ActiveDuring:
+					// Check for errors on devices commanded on this step here
+					State.fbSequencer.M_CheckFaultCondition(Error := fbConveyor.P_Error);
+                E_StepState.ActiveExit:
+                    //
+                E_StepState.FaultedEntry:
+                    //
+                E_StepState.FaultedDuring:
+                    //
+                E_StepState.FaultedExit:
+                    //
+            END_CASE
+            // Branch 0: Conveyor Reset
+                State.fbSequencer.M_SetBranchConfig(BranchIndex := 0, Description := 'Conveyor Reset', NextStep := START, CheckWhileFaulted := FALSE);
+                State.fbSequencer.M_SetBranchPermissive(BranchIndex := 0,
+														PermissiveIndex := 0,
+														Description := 'Conveyor is not Resetting',
+														Condition := NOT fbConveyor.P_Status.Resetting);
+                State.fbSequencer.M_SetBranchPermissive(BranchIndex := 0,
+														PermissiveIndex := 1,
+														Description := 'Conveyor No Error',
+														Condition := NOT fbConveyor.P_Error.Active);
+		FINISH:
+            // Each sequence must end with the following method call
+            M_TransitionComplete();
+	END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Running" Id="{32db4497-1891-47ff-a0fd-38b009a51b34}" FolderPath="Fixed States\">
+      <Declaration><![CDATA[METHOD _M_Running
+VAR_INST
+	State	: REFERENCE TO ST_EmFixedState;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set Reference
+State REF= THIS^.ConveyorFixedStates[E_ConveyorEMFixed.Running];
+
+// Name this Fixed State
+    State.Name := 'Running';
+
+// Identify which transitions can be called from this Fixed State, index starting at 1
+    // Transition 1: Stopping
+        State.Transitions[1].Name    := THIS^.ConveyorTransitionStates[E_ConveyorEMTransition.Stopping].Name;
+        State.Transitions[1].Command := THIS^.ConveyorTransitionStates[E_ConveyorEMTransition.Stopping].Command;
+        State.Transitions[1].Target  := THIS^.ConveyorTransitionStates[E_ConveyorEMTransition.Stopping].Target;
+
+// Interlocks that must be met to be in this Fixed State
+	State.fbInterlock.M_Set(Index := 0, Description := 'Axis velocity is constant', Condition := fbConveyor.P_Status.ConstantVelocity);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Starting" Id="{3a3f3f34-3ac3-4b00-b8a0-718dbc918989}" FolderPath="Transition States\">
+      <Declaration><![CDATA[METHOD _M_Starting
+VAR_INST
+	State	: REFERENCE TO ST_EmTransitionState;
+END_VAR
+VAR CONSTANT
+	START	: UDINT := 10;
+	FINISH	: UDINT := 999;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set Reference
+State REF= THIS^.ConveyorTransitionStates[E_ConveyorEMTransition.Starting];
+
+// Name this Transition State
+	State.Name := 'Starting';
+	State.Command := 'Starting';
+	State.Target := THIS^.ConveyorFixedStates[E_ConveyorEMFixed.Running].Name;
+
+// Permissives that must be met in order to call this Transition State
+// These permissives are anything that isn't covered by user configured allowed transitions from Fixed and Unknown states
+	State.fbPermissive.M_Set(Index := 0, Description := 'ALWAYS TRUE', Condition := TRUE);
+
+// Set first step to 10
+	State.fbSequencer.P_Config.FirstStep := 10;
+
+// Sequence
+    CASE State.fbSequencer.P_Status.CurrentStep OF
+		START:
+			CASE State.fbSequencer.P_StepStatus.StepState OF
+				E_StepState.ActiveEntry:
+                    // Set step configurations here
+                    State.fbSequencer.P_StepConfig.Name := 'Rotate Conveyor Belt to Move Box';
+                    State.fbSequencer.P_StepConfig.Timeout := T#0S; // Optional step timeout. Set to zero to ignore
+                    State.fbSequencer.P_StepConfig.IgnoreHold := FALSE; // This step is pausable.
+                    State.fbSequencer.P_StepConfig.NextStepAfterRetry := 0; // Optional.  Set to zero to ignore
+                    // Issue device commands here
+					fbConveyor.M_Move(1);
+				E_StepState.ActiveDuring:
+                    // Check for errors on devices commanded on this step here
+                    State.fbSequencer.M_CheckFaultCondition(Error := fbConveyor.P_Error);
+				E_StepState.ActiveExit:
+					;
+				E_StepState.FaultedEntry:
+					;
+				E_StepState.FaultedDuring:
+					;
+				E_StepState.FaultedExit:
+					;
+			END_CASE
+			// Branch 0: Actuator Advanced Successfully
+				State.fbSequencer.M_SetBranchConfig(BranchIndex := 0, Description := '', NextStep := FINISH, CheckWhileFaulted := TRUE);
+				state.fbSequencer.M_SetBranchPermissive(BranchIndex := 0, PermissiveIndex := 0, Description := '', Condition := fbConveyor.P_Status.ConstantVelocity);
+		FINISH:
+            // Each sequence must end with the following method call
+            M_TransitionComplete();
+	END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Stopped" Id="{4bf5f834-823a-4f50-9286-a330fab91c45}" FolderPath="Fixed States\">
+      <Declaration><![CDATA[METHOD _M_Stopped
+VAR_INST
+	State	: REFERENCE TO ST_EmFixedState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set Reference
+State REF= THIS^.ConveyorFixedStates[E_ConveyorEMFixed.Stopped];
+
+// Name this Fixed State
+    State.Name := 'Stopped';
+
+// Identify which transitions can be called from this Fixed State, index starting at 1
+    // Transition 1: Starting
+        State.Transitions[1].Name    := THIS^.ConveyorTransitionStates[E_ConveyorEMTransition.Starting].Name;
+        State.Transitions[1].Command := THIS^.ConveyorTransitionStates[E_ConveyorEMTransition.Starting].Command;
+        State.Transitions[1].Target  := THIS^.ConveyorTransitionStates[E_ConveyorEMTransition.Starting].Target;
+
+// Interlocks that must be met to be in this Fixed State
+	State.fbInterlock.M_Set(Index := 0, Description := 'Axis is not moving', Condition := NOT fbConveyor.P_Status.Moving);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_M_Stopping" Id="{eb81cccc-8db5-4c3c-8603-5425aabc1d47}" FolderPath="Transition States\">
+      <Declaration><![CDATA[METHOD _M_Stopping
+VAR_INST
+	State	: REFERENCE TO ST_EmTransitionState;
+END_VAR
+VAR CONSTANT
+	STOP	: UDINT := 10;
+	FINISH	: UDINT := 999;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Set Reference
+State REF= THIS^.ConveyorTransitionStates[E_ConveyorEMTransition.Stopping];
+
+// Name this Transition State
+	State.Name := 'Stopping';
+	State.Command := 'Stopping';
+	State.Target := THIS^.ConveyorFixedStates[E_ConveyorEMFixed.Stopped].Name;
+
+// Permissives that must be met in order to call this Transition State
+// These permissives are anything that isn't covered by user configured allowed transitions from Fixed and Unknown states
+	State.fbPermissive.M_Set(Index := 0, Description := 'ALWAYS TRUE', Condition := TRUE);
+
+// Set first step to 10
+	State.fbSequencer.P_Config.FirstStep := 10;
+
+// Sequence
+    CASE State.fbSequencer.P_Status.CurrentStep OF
+		STOP:
+			CASE State.fbSequencer.P_StepStatus.StepState OF
+				E_StepState.ActiveEntry:
+                    // Set step configurations here
+                    State.fbSequencer.P_StepConfig.Name := 'Stop Conveyor Belt';
+                    State.fbSequencer.P_StepConfig.Timeout := T#0S; // Optional step timeout. Set to zero to ignore
+                    State.fbSequencer.P_StepConfig.IgnoreHold := FALSE; // This step is pausable.
+                    State.fbSequencer.P_StepConfig.NextStepAfterRetry := 0; // Optional.  Set to zero to ignore
+                    // Issue device commands here
+					fbConveyor.M_Halt(0, 0);
+				E_StepState.ActiveDuring:
+                    // Check for errors on devices commanded on this step here
+                    State.fbSequencer.M_CheckFaultCondition(Error := fbConveyor.P_Error);
+				E_StepState.ActiveExit:
+					;
+				E_StepState.FaultedEntry:
+					;
+				E_StepState.FaultedDuring:
+					;
+				E_StepState.FaultedExit:
+					;
+			END_CASE
+			// Branch 0: Actuator Advanced Successfully
+				State.fbSequencer.M_SetBranchConfig(BranchIndex := 0, Description := '', NextStep := FINISH, CheckWhileFaulted := TRUE);
+				state.fbSequencer.M_SetBranchPermissive(BranchIndex := 0, PermissiveIndex := 0, Description := '', Condition := fbConveyor.P_Status.ConstantVelocity);
+		FINISH:
+            // Each sequence must end with the following method call
+            M_TransitionComplete();
+	END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Conveyor_EM">
+      <LineId Id="21" Count="6" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="29" Count="1" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="32" Count="3" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="36" Count="1" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="58" Count="2" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="51" Count="1" />
+      <LineId Id="50" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Conveyor_EM._M_Aborting">
+      <LineId Id="5" Count="0" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Conveyor_EM._M_Conveyor">
+      <LineId Id="6" Count="22" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="31" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Conveyor_EM._M_Pausing">
+      <LineId Id="8" Count="1" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="10" Count="10" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="24" Count="14" />
+      <LineId Id="40" Count="2" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Conveyor_EM._M_Proceeding">
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Conveyor_EM._M_Recovery">
+      <LineId Id="9" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="11" Count="3" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="16" Count="1" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="39" Count="3" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="80" Count="1" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="86" Count="6" />
+      <LineId Id="34" Count="1" />
+      <LineId Id="95" Count="1" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="97" Count="2" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="51" Count="8" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="66" Count="7" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="101" Count="4" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="108" Count="2" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Conveyor_EM._M_Running">
+      <LineId Id="12" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="18" Count="4" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="25" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Conveyor_EM._M_Starting">
+      <LineId Id="11" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="13" Count="3" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="18" Count="2" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="44" Count="6" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="35" Count="8" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="52" Count="2" />
+      <LineId Id="56" Count="1" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Conveyor_EM._M_Stopped">
+      <LineId Id="9" Count="12" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Conveyor_EM._M_Stopping">
+      <LineId Id="12" Count="27" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="40" Count="9" />
+      <LineId Id="52" Count="4" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
