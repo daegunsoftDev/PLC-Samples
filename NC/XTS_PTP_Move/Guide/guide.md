@@ -5,9 +5,9 @@
   - [XTS 설치](#XTS-설치)
   - [라이브러리 추가하기](#라이브러리-추가하기)
   - [XTS Module 추가](#XTS-Module-추가)
-  - [XTS_Task 추가 및 코어 설정](#XTS_Task-추가-및-코어-설정)
-  - [XTS IO Driver 추가](#XTS-IO-Driver-추가)
-  - [MOTION Parameter 설정](#MOTION-Parameter-설정)
+  - [XTS Tool을 사용하여 XTS 시스템 구성](#XTS-Tool을-사용하여-XTS-시스템-구성)
+  - [XTS_Task 설정](#XTS-Task-설정)
+  - [기타 Parameter 설정](#기타-Parameter-설정)
   - [코드 작성 및 PLC 인스턴스 변수 Link](#코드-작성-및-PLC-인스턴스-변수-Link)
 - [테스트](#테스트)
   - [TcXtsViewer 실행](#TcXtsViewer-실행)
@@ -64,26 +64,26 @@
 IDE의 Menu bar에서 View - Other Windows - XTS Tool Window를 선택합니다.
 <img src="5 XTS Tool 실행.gif" width="50%">
 
-XTS Tool Window가 열립니다. 상단의 <img src="6 XTS Configurator 아이콘.png"> 아이콘을 클릭하여 XTS Configurator를 실행합니다.
-<img src="7 XTS 설정 과정 Processing Units.gif" width="50%">
-XTS Processing Unit은 XTS 시스템을 제어하는 가장 큰 단위이며 여러개의 Task를 가질 수 있습니다.
+XTS Tool Window가 열립니다. 상단의 <img src="6 XTS Configurator 아이콘.png"> 아이콘을 클릭하여 XTS Configurator를 실행합니다.   
+<img src="7 XTS 설정 과정 Processing Units.gif" width="50%">   
+XTS Processing Unit은 XTS 시스템을 제어하는 가장 큰 단위이며 여러개의 Task를 가질 수 있습니다.   
 이번 예제에서는 1개의 XTS Task만 사용합니다. Task를 생성하고 다음 과정을 진행합니다.
 
-<img src="8 XTS 설정 과정 Parts.gif" width="50%">
+<img src="8 XTS 설정 과정 Parts.gif" width="50%">   
+XTS Part에는 하나 이상의 Feed Line이 포함됩니다.   
+1개의 XTS Part를 생성하고 Device 1, Device 2 순서로 추가합니다.   
 
-XTS Part에는 하나 이상의 Feed Line이 포함됩니다.
-1개의 XTS Part를 생성하고 Device 1, Device 2 순서로 추가합니다.
+<img src="9 XTS 설정 과정 Tracks.gif" width="50%">   
 
-<img src="9 XTS 설정 과정 Tracks.gif" width="50%">
-XTS Track은 하나 이상의 XTS Part로 구성됩니다.
-1개의 XTS Track을 생성하고 이전 단계에서 생성한 Part를 추가합니다.
+XTS Track은 하나 이상의 XTS Part로 구성됩니다.   
+1개의 XTS Track을 생성하고 이전 단계에서 생성한 Part를 추가합니다.   
 
-다음 과정인 XTS Station은 이번 예제에서 다루지 않습니다.
-그 다음 과정인 Mover로 바로 진행합니다.
-<img src="10 XTS 설정 과정 Movers.png" width="50%">
+다음 과정인 XTS Station은 이번 예제에서 다루지 않습니다.   
+그 다음 과정인 Mover로 바로 진행합니다.   
+<img src="10 XTS 설정 과정 Movers.png" width="50%">   
 1개의 Mover를 추가합니다. 다음으로 진행하여 설정을 완료합니다.
 
-### XTS_Task  설정
+### XTS_Task 설정
 
 XTS를 제어하려면 하나의 Isolated Core를 독점적으로 사용하는 Task가 필요합니다.   
 직전 과정에서 추가한 XTS Task를 적절하게 수정해야 합니다.
@@ -106,7 +106,10 @@ XTS_Task는 다른 Task들과 다른 Core에 할당하고, 해당 코어의 Base
 
 이후 SYSTEM - Tasks 에서 XTS_Task의 Cycle ticks를 1로 수정합니다.
 
-### 기타 MOTION Parameter 설정
+### 기타 Parameter 설정
+SYSTEM - TcCOM Objects - XtsProcessingUnit을 선택합니다.   
+Parameter (Init)의 General 에서 OperationMode를 Simulation으로 변경합니다.
+
 MOTION - NC-Task - Objects에 CA Group[Module]을 추가합니다.   
 CA Group의 Parameter (Init) 에서 Geometry의 Rail Length가 XTS 시스템의 트랙 길이(3000mm)와 동일한지 확인합니다.   
 Track이 폐곡선 형태이므로 Rail is Ring 속성은 TRUE로 설정되어야 합니다.   
