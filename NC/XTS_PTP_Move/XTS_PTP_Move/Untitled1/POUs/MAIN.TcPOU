@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.5">
-  <POU Name="MAIN" Id="{4ff1fa28-ddb3-4e61-81c4-aae26840fbc5}" SpecialFunc="None">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="MAIN" Id="{2571f391-c8c0-4f92-a207-030ecbb4fd34}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
 	Axis1			:	AXIS_REF;
@@ -106,35 +106,8 @@ fbHalt2(
 );]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
+      <LineId Id="46" Count="59" />
       <LineId Id="2" Count="0" />
-      <LineId Id="39" Count="0" />
-      <LineId Id="87" Count="1" />
-      <LineId Id="49" Count="0" />
-      <LineId Id="41" Count="0" />
-      <LineId Id="51" Count="4" />
-      <LineId Id="58" Count="4" />
-      <LineId Id="56" Count="0" />
-      <LineId Id="64" Count="0" />
-      <LineId Id="72" Count="4" />
-      <LineId Id="71" Count="0" />
-      <LineId Id="78" Count="4" />
-      <LineId Id="77" Count="0" />
-      <LineId Id="84" Count="0" />
-      <LineId Id="83" Count="0" />
-      <LineId Id="85" Count="1" />
-      <LineId Id="40" Count="0" />
-      <LineId Id="90" Count="0" />
-      <LineId Id="89" Count="0" />
-      <LineId Id="92" Count="0" />
-      <LineId Id="100" Count="5" />
-      <LineId Id="99" Count="0" />
-      <LineId Id="107" Count="5" />
-      <LineId Id="106" Count="0" />
-      <LineId Id="114" Count="0" />
-      <LineId Id="118" Count="2" />
-      <LineId Id="117" Count="0" />
-      <LineId Id="122" Count="2" />
-      <LineId Id="171" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

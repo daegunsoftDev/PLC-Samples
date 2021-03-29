@@ -2,19 +2,19 @@
   <PropertyGroup>
     <FileVersion>1.0.0.0</FileVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{59ce5cfa-d804-421e-b169-8c3b94290b2a}</ProjectGuid>
+    <ProjectGuid>{86e2c65b-c44f-45c2-969e-ee2bdcbbf16c}</ProjectGuid>
     <SubObjectsSortedByName>True</SubObjectsSortedByName>
     <DownloadApplicationInfo>true</DownloadApplicationInfo>
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>Untitled1</Name>
-    <ProgramVersion>3.1.4023.0</ProgramVersion>
-    <Application>{ddea12f9-6b16-4fa8-b167-a657c968fd13}</Application>
-    <TypeSystem>{cf7e86a5-be22-4a9a-9c0e-a952b566d44d}</TypeSystem>
-    <Implicit_Task_Info>{d7862ede-7ed7-4008-81b2-e18422556991}</Implicit_Task_Info>
-    <Implicit_KindOfTask>{940f4a37-7b9a-49b7-b4ba-e28c97796367}</Implicit_KindOfTask>
-    <Implicit_Jitter_Distribution>{68934d09-8e63-49e2-8557-d493e845cb48}</Implicit_Jitter_Distribution>
-    <LibraryReferences>{f2d8e1dd-7c1b-4caf-bcce-f6229815183e}</LibraryReferences>
+    <ProgramVersion>3.1.4024.12</ProgramVersion>
+    <Application>{b48f0b8d-a452-4963-be9e-cccc11175a4f}</Application>
+    <TypeSystem>{1f4e959d-e73d-4d22-9fb1-711f74663448}</TypeSystem>
+    <Implicit_Task_Info>{f92a630a-a94c-455f-8caf-774fae59335a}</Implicit_Task_Info>
+    <Implicit_KindOfTask>{ca1f00b6-f1f7-4c38-86d9-d271473a2cd0}</Implicit_KindOfTask>
+    <Implicit_Jitter_Distribution>{7cf0bb12-e416-4d4a-90fe-2888618d09e2}</Implicit_Jitter_Distribution>
+    <LibraryReferences>{f3c28642-103c-4af8-bf77-5e02cf7b959f}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="PlcTask.TcTTO">
@@ -61,34 +61,11 @@
       <SubType>Content</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <PlaceholderResolution Include="Tc2_Math">
-      <Resolution>Tc2_Math, 3.3.1.0 (Beckhoff Automation GmbH)</Resolution>
-    </PlaceholderResolution>
-    <PlaceholderResolution Include="Tc2_MC2">
-      <Resolution>Tc2_MC2, 3.3.42.0 (Beckhoff Automation GmbH)</Resolution>
-    </PlaceholderResolution>
-    <PlaceholderResolution Include="Tc2_Standard">
-      <Resolution>Tc2_Standard, 3.3.3.0 (Beckhoff Automation GmbH)</Resolution>
-    </PlaceholderResolution>
-    <PlaceholderResolution Include="Tc2_System">
-      <Resolution>Tc2_System, 3.4.24.0 (Beckhoff Automation GmbH)</Resolution>
-    </PlaceholderResolution>
-    <PlaceholderResolution Include="Tc3_McCollisionAvoidance">
-      <Resolution>Tc3_McCollisionAvoidance, 3.1.10.1 (Beckhoff Automation GmbH)</Resolution>
-    </PlaceholderResolution>
-    <PlaceholderResolution Include="Tc3_McCoordinatedMotion">
-      <Resolution>Tc3_McCoordinatedMotion, 3.1.10.0 (Beckhoff Automation GmbH)</Resolution>
-    </PlaceholderResolution>
-    <PlaceholderResolution Include="Tc3_Module">
-      <Resolution>Tc3_Module, 3.3.21.0 (Beckhoff Automation GmbH)</Resolution>
-    </PlaceholderResolution>
-  </ItemGroup>
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-        <Data>
-          <o xml:space="preserve" t="OptionKey">
+  <Data>
+    <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{40450F57-0AA3-4216-96F3-5444ECB29763}</v>
@@ -109,13 +86,13 @@
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-        </Data>
-        <TypeList>
-          <Type n="Hashtable">System.Collections.Hashtable</Type>
-          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-          <Type n="String">System.String</Type>
-        </TypeList>
-      </XmlArchive>
+  </Data>
+  <TypeList>
+    <Type n="Hashtable">System.Collections.Hashtable</Type>
+    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+    <Type n="String">System.String</Type>
+  </TypeList>
+</XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>
