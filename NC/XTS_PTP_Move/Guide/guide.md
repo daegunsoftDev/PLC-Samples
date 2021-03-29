@@ -81,7 +81,7 @@ XTS Track은 하나 이상의 XTS Part로 구성됩니다.
 다음 과정인 XTS Station은 이번 예제에서 다루지 않습니다.   
 그 다음 과정인 Mover로 바로 진행합니다.   
 <img src="10 XTS 설정 과정 Movers.png" width="50%">   
-1개의 Mover를 추가합니다. 다음으로 진행하여 설정을 완료합니다.
+2개의 Mover를 추가합니다. 다음으로 진행하여 설정을 완료합니다.
 
 ### XTS_Task 설정
 
