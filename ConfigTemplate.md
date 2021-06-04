@@ -1,2 +1,2 @@
-# ConfigTEST
+# ConfigTemplate
  Beckhoff Configuration
