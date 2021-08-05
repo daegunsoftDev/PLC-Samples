@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="MAIN" Id="{2571f391-c8c0-4f92-a207-030ecbb4fd34}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	Axis1			:	AXIS_REF;
+	Axis2			:	AXIS_REF;
+	AxesGroup		:	AXES_GROUP_REF;
+	
+	// Administrative Function Block
+	
+	fbPower1		:	MC_Power();
+	fbPower2		:	MC_Power();
+	bEnable			:	BOOL;
+	
+	fbAddToGroup1	:	MC_AddAxisToGroup;
+	fbAddToGroup2	:	MC_AddAxisToGroup;
+	bAddToGroup		:	BOOL;
+	
+	fbGroupEnable	:	MC_GroupEnable;
+	bGroupEnable	:	BOOL;
+	
+	// Motion Function Block
+	
+	fbMoveAbs1		:	MC_MoveAbsoluteCA;
+	bMoveExecute1	:	BOOL;
+	fPosition1		:	LREAL;
+	fVelocity1		:	LREAL;
+	fGap1			:	LREAL;
+	
+	fbMoveAbs2		:	MC_MoveAbsoluteCA;
+	bMoveExecute2	:	BOOL;
+	fPosition2		:	LREAL;
+	fVelocity2		:	LREAL;
+	fGap2			:	LREAL;
+	
+	fbHalt1			:	MC_HaltCA;
+	bHalt1			:	BOOL;
+	
+	fbHalt2			:	MC_HaltCA;
+	bHalt2			:	BOOL;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[Axis1();
+Axis2();
+
+// Administrative Function Block
+
+fbPower1(
+	Axis := Axis1,
+	Enable := bEnable,
+	Enable_Positive := bEnable,
+	Enable_Negative := bEnable
+);
+fbPower2(
+	Axis := Axis2,
+	Enable := bEnable,
+	Enable_Positive := bEnable,
+	Enable_Negative := bEnable
+);
+
+fbAddToGroup1(
+	AxesGroup := AxesGroup,
+	Axis := Axis1,
+	Execute := bAddToGroup,
+	IdentInGroup := UDINT_TO_IDENTINGROUP(1)
+);
+fbAddToGroup2(
+	AxesGroup := AxesGroup,
+	Axis := Axis2,
+	Execute := bAddToGroup,
+	IdentInGroup := UDINT_TO_IDENTINGROUP(2)
+);
+
+fbGroupEnable(
+	AxesGroup := AxesGroup,
+	Execute := bGroupEnable
+);
+
+// Motion Function Block
+
+fbMoveAbs1(
+	Axis := Axis1,
+	Execute := bMoveExecute1,
+	Position := fPosition1,
+	Velocity := fVelocity1,
+	Gap := fGap1
+);
+fbMoveAbs2(
+	Axis := Axis2,
+	Execute := bMoveExecute2,
+	Position := fPosition2,
+	Velocity := fVelocity2,
+	Gap := fGap2
+);
+
+fbHalt1(
+	Axis := Axis1,
+	Execute := bHalt1
+);
+fbHalt2(
+	Axis := Axis2,
+	Execute := bHalt2
+);]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="46" Count="59" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

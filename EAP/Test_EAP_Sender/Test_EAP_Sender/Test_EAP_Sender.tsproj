@@ -1,0 +1,167 @@
+<?xml version="1.0"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.12">
+	<DataTypes>
+		<DataType>
+			<Name GUID="{CA937EA4-0DA0-2440-0362-EB5A61325E1A}" Namespace="Tc2_System" AutoDeleteType="true">T_MaxString</Name>
+			<Comment><![CDATA[ TwinCAT PLC string of max. length of 255 bytes + 1 byte null delimiter. ]]></Comment>
+			<BitSize>2048</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-0001000000FF}">STRING(255)</BaseType>
+		</DataType>
+	</DataTypes>
+	<Project ProjectGUID="{B2DD85AA-341B-49B9-8289-820FD6185550}" TargetNetId="5.79.65.80.1.1" ShowHideConfigurations="#x106">
+		<System>
+			<Settings MaxCpus="12" NonWinCpus="4">
+				<Cpu CpuId="11"/>
+			</Settings>
+			<Tasks>
+				<Task Id="3" Priority="20" CycleTime="100000" AmsPort="350" AdtTasks="true">
+					<Name>PlcTask</Name>
+				</Task>
+			</Tasks>
+		</System>
+		<Plc>
+			<Project GUID="{3480BE09-C5C5-47DB-982D-5463EC92E22C}" Name="Untitled1" PrjFilePath="Untitled1\Untitled1.plcproj" TmcFilePath="Untitled1\Untitled1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc">
+					<Name>Untitled1 Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Vars VarGrpType="2" AreaNo="1">
+						<Name>PlcTask Outputs</Name>
+						<Var>
+							<Name>MAIN.nIndex</Name>
+							<Type>DINT</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.sText</Name>
+							<Type GUID="{CA937EA4-0DA0-2440-0362-EB5A61325E1A}" Namespace="Tc2_System">T_MaxString</Type>
+						</Var>
+					</Vars>
+					<Contexts>
+						<Context>
+							<Id NeedCalleeCall="true">0</Id>
+							<Name>PlcTask</Name>
+							<ManualConfig>
+								<OTCID>#x02010030</OTCID>
+							</ManualConfig>
+							<Priority>20</Priority>
+							<CycleTime>10000000</CycleTime>
+						</Context>
+					</Contexts>
+					<TaskPouOids>
+						<TaskPouOid Prio="20" OTCID="#x08502001"/>
+					</TaskPouOids>
+				</Instance>
+			</Project>
+		</Plc>
+		<Io>
+			<Device Id="1" DevType="112" AmsPort="28673" AmsNetId="5.79.65.80.2.1" RemoteName="Device 1 (EtherCAT Automation Protocol)">
+				<Name>Device 1 (EtherCAT Automation Protocol)</Name>
+				<AddressInfo>
+					<Pnp>
+						<DeviceDesc>Local Area Connection (X000)</DeviceDesc>
+						<DeviceName>\DEVICE\{24D8DAF3-AC41-4D41-8432-EB4E4A9E5D68}</DeviceName>
+						<DeviceData>0001054f4151</DeviceData>
+					</Pnp>
+				</AddressInfo>
+				<Image Id="1" AddrType="1" ImageType="3">
+					<Name>Image</Name>
+				</Image>
+				<Box Id="1" BoxType="9051">
+					<Name>Box 1 (Publisher)</Name>
+					<ImageId>99</ImageId>
+					<Vars VarGrpType="1">
+						<Name>Inputs</Name>
+						<Var BoxStateVariable="true">
+							<Name>FrameState</Name>
+							<Comment><![CDATA[0x0001 = Not sent (frame skipped)
+0x0002 = Error (frame oversized)
+0x0004 = Subscriber missing (Unicast only)
+]]></Comment>
+							<Type>UINT</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2">
+						<Name>Outputs</Name>
+						<Var BoxStateVariable="true">
+							<Name>FrameCtrl</Name>
+							<Comment><![CDATA[0x0001 = Disable sending
+0x0002 = Remove destination MAC from ARP cache
+]]></Comment>
+							<Type>UINT</Type>
+						</Var>
+					</Vars>
+					<Eap InOut="1" Publisher="054f459e0101" ArpRetryInterval="1000">
+						<EapVar Id="1" VarInOut="1" NvId="1" NvLength="4">
+							<Name>Pub-Var 1</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>16</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>16</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type>DINT</Type>
+									<BitOffs>32</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+						<EapVar Id="2" VarInOut="1" NvId="2" NvLength="256">
+							<Name>Pub-Var 2</Name>
+							<ImageId>97</ImageId>
+							<Vars VarGrpType="1">
+								<Name>Inputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarState</Name>
+									<Comment><![CDATA[0x0001 = Not sent (variable skipped)
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>32</BitOffs>
+								</Var>
+							</Vars>
+							<Vars VarGrpType="2">
+								<Name>Outputs</Name>
+								<Var BoxStateVariable="true">
+									<Name>VarCtrl</Name>
+									<Comment><![CDATA[0x0001 = Disable publishing
+]]></Comment>
+									<Type>UINT</Type>
+									<BitOffs>64</BitOffs>
+								</Var>
+								<Var>
+									<Name>VarData</Name>
+									<Type>STRING(255)</Type>
+									<BitOffs>80</BitOffs>
+								</Var>
+							</Vars>
+						</EapVar>
+					</Eap>
+				</Box>
+				<Ethernet DeviceDesc="Local Area Connection (X000)"/>
+				<Eap EapDeviceGuid="{7430D0B0-4C0D-44DC-B90C-B7F685A3F02F}"/>
+			</Device>
+		</Io>
+	</Project>
+	<Mappings>
+		<MappingInfo Identifier="{00000000-2001-0850-0020-500810000403}" Id="#x02030010"/>
+		<OwnerA Name="TIPC^Untitled1^Untitled1 Instance">
+			<OwnerB Name="TIID^Device 1 (EtherCAT Automation Protocol)^Box 1 (Publisher)">
+				<Link VarA="PlcTask Outputs^MAIN.nIndex" VarB="Pub-Var 1^Outputs^VarData"/>
+				<Link VarA="PlcTask Outputs^MAIN.sText" VarB="Pub-Var 2^Outputs^VarData"/>
+			</OwnerB>
+		</OwnerA>
+	</Mappings>
+</TcSmProject>
